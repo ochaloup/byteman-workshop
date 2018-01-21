@@ -1,0 +1,6 @@
+[submodule "slides/reveal.js"]
+	path = slides/reveal.js
+	url = git@github.com:ochaloup/reveal.js.git
+[submodule "slides/asciidoctor-reveal.js"]
+	path = slides/asciidoctor-reveal.js
+	url = git@github.com:ochaloup/asciidoctor-reveal.js.git
