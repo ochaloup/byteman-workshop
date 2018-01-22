@@ -1,0 +1,61 @@
+= Task5: On tracing
+
+== Goal
+
+* <<part1>>: overview of Byteman sample scripts and how they can help in tracing and searching bugs
+
+== Source code overview
+
+The directory `task5` contains simple java program started with class `org.jboss.btm.workshop.Task5Main`
+which contain main method to be started. +
+The main method creates in cycle instances of `java.util.concurrent.Callable`
+which are then submitted to executor and run. +
+Each callable instance makes change in shared static counter and ends.
+
+[[task5-setup]]
+== Setup
+
+. setup your environment at link:../README.adoc[prerequisites], ensures sources are compiled (`mvn install -DskipTests`)
+. go to the directory `$BYTEMAN_WORKSHOP/task5`: `cd "$BYTEMAN_WORKSHOP/task5"`
+
+[[part1]]
+== Use sample btm script to monitor thread activity _(Optional)_
+
+=== Task
+
+* Observe  https://github.com/bytemanproject/byteman/blob/master/sample/scripts/
+** there are scripts containing samples to help in monitoring your application
+* Run the program with script `ThreadMonitorHistory.btm` and observe output file `./thread-system-exit-0.txt`
+** you can see thread that was started but not finished and was blocking
+
+=== Hints
+
+* after compilation <<task5-setup>> you can run the program from console
+** `java -cp target/byteman-workshop-task5-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task5Main`
+* use the `btm` script at `$BYTEMAN_WORKSHOP/task5/ThreadMonitorHistory.btm`
+** original script is at https://github.com/bytemanproject/byteman/blob/master/sample/scripts/ThreadMonitorHistory.btm[ThreadMonitorHistory.btm]
+* you need to add to the classpath helper used in the script which is at `$BYTEMAN_HOME/sample/lib/byteman-sample.jar`
+* you need to add `,boot:$BYTEMAN_JAR` for Byteman can see the internal java classes
+* you need to add `-Dorg.jboss.byteman.transform.all` for Byteman can inject rules to java internal classes
+* when running the program with `-javaagent` and the script it will get stuck,
+  exit with `CTRL+C` or `kill`
+
+=== Solution
+
+* the original https://github.com/bytemanproject/byteman/blob/master/sample/scripts/ThreadMonitorHistory.btm[ThreadMonitorHistory.btm]
+  script does not consider existence of the `Task5Main` class where we want to get information about threads
+  when it's exited. You can use adjusted script `$BYTEMAN_WORKSHOP/task5/ThreadMonitorHistory.btm` which consider so.
+* you need to
+  .. add byteman agent to be attached to the running program (use `-javaagent:` or consider the info
+     https://github.com/bytemanproject/byteman/blob/master/sample/scripts/ThreadMonitorHistory.btm#L40[in the script])
+  .. handling `Thread` classes consist injection of rules under `java` inner classes,
+     you should consider usage of parameter `-Dorg.jboss.byteman.transform.all`
+  .. the `btm` script uses proper `Helper` class and it's needed to be added to the classpath
+  .. as handling with java internal classes we need to have Byteman classes loaded by boot class loader
+* run
+  ** `java -javaagent:$BYTEMAN_JAR=script:./ThreadMonitorHistory.btm,boot:/home/ochaloup/.m2/repository/org/jboss/byteman/byteman-sample/4.0.0/byteman-sample-4.0.0.jar,boot:$BYTEMAN_JAR -cp target/byteman-workshop-task5-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.transform.all  org.jboss.btm.workshop.Task5Main`
+* now you can check existence of file `./thread-system-exit-0.txt` where are gathered information
+  about started threads and their stacktraces
+* you can observe that the java program was not finished but it hangs - use `kill`
+  command or `CTRL+C` and follow further
+  

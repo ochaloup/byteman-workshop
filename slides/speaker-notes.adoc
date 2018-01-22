@@ -1,0 +1,23 @@
+= Speaker notes
+
+== Preparation
+
+* opened page https://www.beyondjava.net/blog/quick-guide-writing-byte-code-asm
+  to show what is syntax for ASM
+* code  of Narayan tests showing during motivation slide
+* opened source codes of `org.jboss.byteman.agent.Main` to show how `premain` method looks like
+* opened source codes of `org.jboss.byteman.rule.helper.Helper` to show the utility methods
+* opened Byteman programmer's guide
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.pdf
+* get opened
+** https://github.com/apache/activemq-artemis/blob/master/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/ActiveMQRAManagedConnection.java#L468
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#class-rules-vs-interface-rules
+*** CLASS vs INTERFACE, overriding with ^
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#location-specifiers
+*** many options see the doc
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-bindings
+*** many special variable normally started with `$`
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-conditions
+*** has to return boolean
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-actions
