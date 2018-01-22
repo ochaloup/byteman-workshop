@@ -1,0 +1,20 @@
+RULE make byteman to work
+CLASS java.lang.String
+METHOD <init>(String)
+AT ENTER
+IF TRUE
+DO
+  # not triggered recursively if there is called String constructor here
+  setTriggering(false);
+  # will be shown when -Dorg.jboss.byteman.debug is used
+  debug("param " + new String($1));
+  $1 = "<byteman trojan> : " + $1
+ENDRULE
+
+RULE make byteman to work
+CLASS Task2HelloWorld
+METHOD main
+AT INVOKE PrintStream.println
+IF TRUE
+DO
+  System.out.print("Parameter one is: " + $@[1] + "\n")

@@ -1,0 +1,9 @@
+RULE throw exception
+CLASS Task2HelloWorld
+METHOD main
+AT ENTRY
+IF TRUE
+DO
+  # throw new RuntimeException("Byteman throws this!");
+  throw new java.io.IOException("Byteman throws this!");
+ENDRULE

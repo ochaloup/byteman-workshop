@@ -1,0 +1,58 @@
+= Task3: Writing Byteman rule and helper usage
+
+== Goal
+
+* <<part3>>: how to get running your own helper class
+
+IMPORTANT: Expecting you won't change the *java* code!
+
+== Source code overview
+
+The directory `task3` contains two maven modules
+
+* `greetings` containing code of the program we will work with. There is hierarchy
+  of greeting instances taken from interface `org.jboss.btm.workshop.Task3GreetingsProcessor`.
+  Then there is main class taken arguments from command line and pass them to the
+  processors which then returns an text output.
+* `helper` is module containing maven helper class which functionality is for more
+  complicated code which is not permitted under Byteman action script DSL,
+  helper class is `org.jboss.btm.workshop.Task3Helper`
+
+[[task3-setup]]
+== Setup
+
+. setup your environment at link:../README.adoc[prerequisites], ensures sources are compiled (`mvn install -DskipTests`)
+. go to the directory `$BYTEMAN_WORKSHOP/task3/greetings`: `cd "$BYTEMAN_WORKSHOP/task3/greetings"`
+. you can import the projects from folders `greetings` and `helper` to you IDE
+
+[[part3]]
+== Using Byteman helper
+
+=== Task
+
+* Run java main class `Task2HelloWorld` (expects one or two parameters)
+* change the script `task3.btm` to use your own (_already here fully prepared_) helper class
+  `org.jboss.btm.workshop.Task3Helper` with method `isGreeting`
+* expected output:
+** if program is run with parameter `good bye` : `output: [#1:good] [#2:abstract:bye]`
+** if program is run with parameter `hi hello` : `output: [#1:god bless you] [#2:abstract:god bless you]`
+
+=== Hints
+
+* helper classes are used for providing more complicated functionality that is not permitted by Byteman DSL (DSL is a bit quite restrictive)
+* be at directory `$BYTEMAN_WORKSHOP/task3/greetings`
+* observe files `task3.btm` and `task3.greetings`
+* prepared `org.jboss.btm.workshop.Task3Helper` knows to load list of lines from the file `task3.greetings`,
+  helper loads the file from the classpath
+* run the program with Byteman rule where you can change the parameter at the end of the command
+** `java -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task3/greetings/task3.btm -cp target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main good bye`
+* remember existence of `HELPER` clause (documentation about at
+  http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#user-defined-rule-helpers)
+* Byteman needs to know path to the helper at classpath, here at `$BYTEMAN_WORKSHOP/task3/helper/target/byteman-workshop-task3-helper-1.0.0-SNAPSHOT.jar`
+** for shorter command consider using env variable `CLASSPATH` (https://docs.oracle.com/javase/tutorial/essential/environment/paths.html)
+* if helper configured you can use any `public` method declared in the helper class which is here `boolean isGreeting(java.lang.String)`
+** `isGreeting(...)` returns true if passed parameter equals one of terms loaded from file `task3.greetings`
+** `isGreeting(...)` returns false if passed parameter does not equal to any line from the loaded file
+* check http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-bindings to see what is the syntax
+  for first parameter of the method
+* debug and verbose to see processing via `-Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug`

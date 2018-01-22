@@ -1,0 +1,8 @@
+RULE change message when it's greeting
+INTERFACE ^Task3GreetingsProcessor
+METHOD process
+AT ENTRY
+IF false
+DO
+  $1 = "god bless you"
+ENDRULE

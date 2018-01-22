@@ -1,0 +1,98 @@
+= Byteman basics: workshop
+
+These are resources for workshop about Byteman initially created
+for https://devconf.cz[DevConf.CZ - Brno 2018].
+
+The repository contains link:./slides/slides.adoc[slides for the presentation]
+and then directories for individual tasks that the workshop consists
+from{nbsp}(link:./task1[1],{nbsp}link:./task2[2],{nbsp}link:./task3[3],{nbsp}link:./task5[5]).
+
+:toc: right
+
+== Prerequisites
+
+What you will need to have on your machine to get running particular tasks
+
+* Java JDK 8 (http://www.oracle.com/technetwork/java/javase/downloads/)
+* Maven (https://maven.apache.org/download.cgi)
+* Byteman binaries (agent jar) (http://byteman.jboss.org/downloads.html)
+* Byteman programmer's Guide (http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html)
+* IDE (Eclipse, IntelliJ IDEA, ...) will be helpful
+
+== Starting the workshop and install instructions
+
+=== Linux
+
+==== Get prerequisites (using script)
+
+You can use script `setup.sh` to download binaries from the net for you and
+settings the expected variables expected to be set in console for task completion.
+
+. `git clone https://github.com/ochaloup/byteman-workshop.git`
+. `cd byteman-workshop`
+. `source setup.sh` and follow the printed instructions
+
+WARNING: tested with bash, could not work with others (e.g. csh makes troubles)
+
+==== Get prerequisites (manual steps)
+
+===== Get the workshop sources
+
+. clone repository of this workshop `git clone https://github.com/ochaloup/byteman-workshop.git`
+. `export BYTEMAN_WORKSHOP="$PWD/byteman-workshop"`
+. `mkdir "$BYTEMAN_WORKSHOP/libs"`
+
+WARNING: steps referred through the workshop instructions are relative
+         to the directory `$BYTEMAN_WORKSHOP/libs`. +
+         The libraries could be placed at whatever directory which fits for you.
+
+. installing java
+  * _option 1_: `dnf install java java-devel`
+  * _option 2_:
+    .. download java jdk (*jdk-8u161*) archive from https://www.java.com/en/download/linux_manual.jsp
+       to `$BYTEMAN_WORKSHOP/libs`
+    .. `tar -C "$BYTEMAN_WORKSHOP/libs" -xzf "$BYTEMAN_WORKSHOP/libs/jdk-8u161-linux-x64.tar.gz"`
+    .. `export JAVA_HOME="$BYTEMAN_WORKSHOP/libs/jdk1.8.0_161"`
+    .. `export PATH="$JAVA_HOME/bin:$PATH"`
+. installing Maven
+  * _option 1_: `dnf install maven`
+  * _option 2_: download Maven archive to `$BYTEMAN_WORKSHOP/libs`
+    .. `wget http://www-eu.apache.org/dist/maven/maven-3/3.5.2/binaries/apache-maven-3.5.2-bin.zip -O $BYTEMAN_WORKSHOP/libs/maven352.zip`
+    .. `unzip -d "$BYTEMAN_WORKSHOP/libs" "$BYTEMAN_WORKSHOP/libs/maven352.zip"`
+    .. `export MAVEN_HOME="$BYTEMAN_WORKSHOP/libs/apache-maven-3.5.2"`
+    .. `export PATH="$MAVEN_HOME/bin:$PATH"`
+  * to check Java and Maven are installed `mvn -version`
+. download Byteman binaries (see http://downloads.jboss.org)
+  .. `wget http://downloads.jboss.org/byteman/4.0.0/byteman-download-4.0.0-bin.zip -O "$BYTEMAN_WORKSHOP/libs/byteman400.zip"`
+  .. `unzip -d "$BYTEMAN_WORKSHOP/libs/" "$BYTEMAN_WORKSHOP/libs/byteman400.zip"`
+  .. `export BYTEMAN_HOME="$BYTEMAN_WORKSHOP/libs/byteman-download-4.0.0"`
+  .. `export BYTEMAN_JAR="$BYTEMAN_HOME/lib/byteman.jar"`
+  .. to check that byteman jar exists `file "$BYTEMAN_JAR"` (expected output _...: Java archive data (JAR)_)
+     or `java -jar "$BYTEMAN_JAR"` (expected output _no main manifest attribute, in..._)
+. compile java sources `cd $BYTEMAN_WORKSHOP; mvn install -DskipTests`
+
+NOTE: now you can find the http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.pdf[Byteman programmer's guide]
+at `$BYTEMAN_WORKSHOP/libs/byteman-download-4.0.0/docs/byteman-programmers-guide.pdf`
+or published at http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html
+
+=== Windows, MacOS, ...
+
+I'm sorry there is no precise instructions right now,
+see instructions for the Linux and adjust it for your purpose.
+
+NOTE: Instruction for the installation and running the tasks were prepared
+and tested only for Linux. Feel free to contribute here :-)
+
+NOTE: on Windows instead of bash keyword `export` use cmd keyword `set`
+
+== To verify prerequisites
+
+Check the following environmental variables exists
+
+* `BYTEMAN_HOME`
+* `BYTEMAN_JAR`
+* `JAVA_HOME`
+
+Try to run
+
+* `mvn -version`
