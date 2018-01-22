@@ -1,0 +1,79 @@
+= Simple Byteman instrumentation
+
+== Goal
+
+* <<part1>>: to get running simple java program with Byteman agent attached
+* <<part2>>: to know to use Byteman scripts to change rules to be executed
+
+[[task1-setup]]
+== Setup
+
+. see how to setup your environment at link:../README.adoc[prerequisites]
+.. check Byteman jar exists under variable `$BYTEMAN_JAR`: `file "$BYTEMAN_JAR"`
+. go to the directory `$BYTEMAN_WORKSHOP/task1`: `cd "$BYTEMAN_WORKSHOP/task1"`
+. compile java sources: `mvn clean install`
+. check source code of `Task1HelloWorld*.java` classes
+  ** you can go to directory `$BYTEMAN_WORKSHOP/task1/src/main/java/org/jboss/byteman/workshop`
+  ** you can import the code as maven project under you IDE
+
+
+[[part1]]
+== Part1: attaching Byteman agent
+
+=== Task
+
+* Run the java class `Task1HelloWorld` for you get printed message `Hello world!`
+* With use of the Byteman script at `$BYTEMAN_WORKSHOP/task1/task1.btm` get printed
+  `Hello Byteman!` instead
+
+=== Solution
+
+. When the sources are compiled (<<task1-setup>>) then run the java program at your console
+  `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.byteman.workshop.Task1HelloWorld`
+. Attach the Byteman agent to the starting java program and provide the Byteman rule
+  to change the program behaviour
+  `java -javaagent:$BYTEMAN_JAR=script:./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.byteman.workshop.Task1HelloWorld`
+
+[[part2]]
+== Part2: using Byteman scripts
+
+==
+. be at `part1/01_simple`
+. `cd byteman-simple`
+. `mvn install`
+. `java -cp target/byteman-simple-1.0-SNAPSHOT.jar org.jboss.qa.App`
+. `export BYTEMAN_HOME=/opt/byteman`
+. `java -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm -cp target/byteman-simple-1.0-SNAPSHOT.jar org.jboss.qa.App`
+
+[NOTE]
+====
+You can get verbose info what byteman does with argument `-Dorg.jboss.byteman.verbose`
+and `-Dorg.jboss.byteman.debug=true` to get debug messages from rules.
+
+```
+java -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm -Dorg.jboss.byteman.verbose -cp target/byteman-simple-1.0-SNAPSHOT.jar org.jboss.qa.App
+```
+====
+
+If you want to change (intercept) core java classes (like `java.lang.String` etc.)
+you need to get Byteman being loaded by boot class loader which is defined with
+javaagent option `boot:`.
+
+. enable rule _Change message number 2_ and run with `boot` (otherwise you get exception)
+. `java -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm,boot:$BYTEMAN_HOME/lib/byteman.jar -cp target/byteman-simple-1.0-SNAPSHOT.jar org.jboss.qa.App`
+
+or alternativelly something
+
+. `export JAVA_OPTS="$JAVA_OPTS -Xbootclasspath/p:$BYTEMAN_HOME/lib/byteman.jar -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm`
+
+Exception when boot is not used
+
+```
+Exception in thread "main" java.lang.NoClassDefFoundError: org/jboss/byteman/rule/exception/EarlyReturnException
+  at java.io.PrintStream.println(PrintStream.java)
+  at org.jboss.qa.App.main(App.java:12)
+```
+
+Other important option to set is `-Dorg.jboss.byteman.transform.all` which enables injection
+into `java.lang` classes. Normally the agent ignores rules which apply to this package on the grounds that by modifying these classes it will likely
+shoot itself in the foot changing the JVM functionality it relies on to execute rules.

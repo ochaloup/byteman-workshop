@@ -27,8 +27,8 @@ What you will need to have on your machine to get running particular tasks
 . `mkdir "$BYTEMAN_WORKSHOP/libs"`
 
 WARNING: steps referred through the workshop instructions are relative
-         to the directory `$BYTEMAN_WORKSHOP/libs`. The data could be placed
-         at whatever directory which fits for you.
+         to the directory `$BYTEMAN_WORKSHOP/libs`. +
+         The libraries could be placed at whatever directory which fits for you.
 
 ===== Get prerequisites
 
@@ -51,9 +51,10 @@ WARNING: steps referred through the workshop instructions are relative
 . download Byteman binaries (see http://downloads.jboss.org)
   .. `wget http://downloads.jboss.org/byteman/4.0.0/byteman-download-4.0.0-bin.zip -O "$BYTEMAN_WORKSHOP/libs/byteman400.zip"`
   .. `unzip -d "$BYTEMAN_WORKSHOP/libs/" "$BYTEMAN_WORKSHOP/libs/byteman400.zip"`
-  .. `export BYTEMAN_HOME="$BYTEMAN_WORKSHOP/libs/byteman-download-4.0.0/"`
+  .. `export BYTEMAN_HOME="$BYTEMAN_WORKSHOP/libs/byteman-download-4.0.0"`
   .. `export BYTEMAN_JAR="$BYTEMAN_HOME/lib/byteman.jar"`
-  .. to check that byteman jar exists `file "$BYTEMAN_JAR"`
+  .. to check that byteman jar exists `file "$BYTEMAN_JAR"` (expected output _...: Java archive data (JAR)_)
+     or `java -jar "$BYTEMAN_JAR"` (expected output _no main manifest attribute, in..._)
 
 
 NOTE: now you can find the http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.pdf[Byteman programmer's guide]
@@ -62,5 +63,7 @@ or published at http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-gui
 
 ==== Windows, MacOS, ...
 
-*TODO:* _installation instructions were unfortunately prepared and tested only for Linux,
-feel free to contribute here :-)_
+*TODO:* ...
+
+WARNING: Instruction for the installation and running the tasks were prepared
+and tested only for Linux. Feel free to contribute here :-)
