@@ -1,0 +1,45 @@
+= Task2: Discovering issues in Byteman script
+
+== Goal
+
+* <<part1>>: to know tooling to verify correctness of the Byteman script
+
+=== Restrictions
+
+Do not change the *java* code!
+
+Imagine you need to change the program behaviour but you can't change the sources.
+The only way is changing rules in the Byteman script.
+
+[[task2-setup]]
+== Setup
+
+. see how to setup your environment at link:../README.adoc[prerequisites]
+.. check Byteman jar exists under variable `$BYTEMAN_JAR`: `file "$BYTEMAN_JAR"`
+. go to the directory `$BYTEMAN_WORKSHOP/task2`: `cd "$BYTEMAN_WORKSHOP/task2"`
+. compile java sources: `mvn clean install`
+. check source code of `Task2HelloWorld.java` class
+  ** you can go to directory `$BYTEMAN_WORKSHOP/task2/src/main/java/org/jboss/btm/workshop`
+  ** you can import the code as maven project under you IDE
+
+
+[[part1]]
+== Part1: use Byteman script to check script correctness
+
+=== Task
+
+* Use Byteman tooling to see what are errors in the script `task2.btm` (hint: `bmcheck.(sh|bat)`)
+* Correct the `task2.btm` for not getting syntax errors while starting the task2 java example program
+
+=== Reference
+
+see Byteman programmer's guide section section
+http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#configuring-a-java-agent[Configuring a java agent]
+
+=== Solution
+
+. when the sources are compiled (<<task1-setup>>) then run the java program at your console
+  `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
+. attach the Byteman java agent to the starting java program and provide the Byteman script
+  with rule changing the program behaviour
+  `java -javaagent:$BYTEMAN_JAR=script:./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`

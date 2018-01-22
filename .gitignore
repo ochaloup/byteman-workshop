@@ -10,5 +10,6 @@ target/
 libs/
 
 # temporary files
-desktop_byteman_1920x1200.jpg
+*.orig.png
+*.orig.jpg
 

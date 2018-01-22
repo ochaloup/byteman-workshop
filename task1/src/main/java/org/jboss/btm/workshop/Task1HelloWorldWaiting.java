@@ -14,10 +14,9 @@ import java.io.InputStreamReader;
  * java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorldWaiting
  * </pre>
  */
-public class Task1HelloWorldWaiting 
-{
-    public static void main( String[] args )
-    {
+public class Task1HelloWorldWaiting {
+
+    public static void main( String[] args ) {
     	try(BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
     		String readValue = "";
     		while(!readValue.matches("exit|q|quit")) {

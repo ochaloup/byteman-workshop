@@ -1,4 +1,4 @@
-= Simple Byteman instrumentation
+= Task1: Simple Byteman instrumentation
 
 == Goal
 
@@ -48,8 +48,8 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#configur
 * Run the java class `Task1HelloWorldWaiting` for you getting printed message `Hello world!`
   when you type any key
 * Check if the running java process has installed Byteman java agent
-* Install Byteman java agent to the running java process
-* Show and install Byteman rules (a script) to change the program behaviour
+* Install Byteman java agent to the running java process (hint: `bminstall.(sh|bat)`)
+* Show and install Byteman rules (a script) to change the program behaviour  (hint: `bmsubmit.(sh|bat)`)
 
 === Reference
 
@@ -142,6 +142,7 @@ java -javaagent:$BYTEMAN_JAR=script:./task1.btm,listener=false -cp target/bytema
 NOTE: if you want to touch classes from some of the WildFly modules you can use
       Byteman contrib module https://github.com/bytemanproject/byteman/tree/master/contrib/jboss-modules-system
       for being able to use clause `IMPORT module.name` in the script
+      (internal details at discussion https://developer.jboss.org/thread/261314)
 
 NOTE: do not put your (test) classes under package `org.jboss.byteman` as this is Byteman _home package_
       and is threatened differently and scripts and rule won't be loaded

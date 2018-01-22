@@ -1,0 +1,28 @@
+RULE Change message
+CLASS Task1HelloWorld
+METHOD main
+AFTER WRITE $message
+IF TRUE
+DO
+  $message = "Hello Byteman!"
+ENDRULE
+
+# part 2
+RULE change message waiting
+CLASS Task1HelloWorldWaiting
+METHOD write
+AT ENTRY
+IF TRUE
+DO
+  $1 = "Hello Byteman!"
+ENDRULE
+
+# part 3
+RULE show byteman is loaded
+CLASS Main
+METHOD main
+AT ENTRY
+IF TRUE
+DO
+  System.out.println("I'm Byteman and I'm here!");
+ENDRULE

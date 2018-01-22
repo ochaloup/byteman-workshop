@@ -1,0 +1,8 @@
+= Speaker notes
+
+== Preparation
+
+* opened page https://www.beyondjava.net/blog/quick-guide-writing-byte-code-asm
+  to show what is syntax for ASM
+* code of `crash recovery testsuite` showing during motivation slide
+* opened source codes of `org.jboss.byteman.agent.Main` to show how `premain` method looks like

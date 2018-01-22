@@ -13,12 +13,15 @@
 
 == Byteman basics
 
+// https://developer.mozilla.org/en-US/docs/Web/CSS/background-size
 image::byteman-wallpaper-shrink.jpg[canvas, size=cover]
 
 Ondra Chaloupka / ochaloup@redhat.com / https://twitter.com/_chalda[@_chalda]
 
 
-== Motivation
+== Agenda
+
+image::battery-full.png[canvas, size=contain]
 
 * what is the Byteman and what is good for
 * how to start
@@ -30,47 +33,42 @@ Ondra Chaloupka / ochaloup@redhat.com / https://twitter.com/_chalda[@_chalda]
 
 == What's not included
 
-* Java 9
-* _Byteman 4.0.0 has full support of Java 9 features_
+image::battery-empty.png[canvas, size=contain]
 
-== !
+* Java 9 +
+  _(Byteman 4.0.0+ has full support of Java 9 features)_
 
-image:{images}/misc/wtf2.jpg[role="noborder"]
+
+== Byteman!
+
+image::byteman-icon.png[role="noborder", ,height="50"]
+
+* java bytecode manipulation library
+* layered on top of ASM library
+* the most up-to-date version: 4.0.0 (jdk9)
+* http://byteman.jboss.org (gh https://github.com/bytemanproject/byteman[bytemanproject/byteman])
+* developed by https://github.com/adinn[Andrew Dinn]
 
 [NOTE.speaker]
 --
-What you will get in this 15 minutes presentation?
+* Byteman works by modifying the bytecode of your application at runtime.
 
-_Basic introduction to what is Byteman_
+* Byteman history: http://bytemanblog.blogspot.cz/2009/10/monitoring-your-jvm-using-byteman-111.html
+
+* ASM example: https://www.beyondjava.net/blog/quick-guide-writing-byte-code-asm
 --
 
 == Motivation
 
 * tracing your code during execution
-* throwing exception in arbitrary point
-* redefining return codes of a method
-* synchronizes your threads
-* simulate OOM or JVM crash
+* changing behaviour of your code while no need to re-compile
+** redefining return codes of a method
+** synchronizes your threads
+* big helper for testing and reproducer creation
+** throwing an exception in arbitrary point
+** simulate OOM or JVM crash
 * ...
 
-== Byteman!
-
-* java bytecode manipulation library
-* developed by Andrew Dinn
-* layed on top of ASM library
-* stable version 3.0.6
-* dev version 4.0.0 (with jdk9)
-* http://byteman.jboss.org
-** on history: http://bytemanblog.blogspot.cz/2009/10/monitoring-your-jvm-using-byteman-111.html
-* https://github.com/bytemanproject/byteman
-* ASM example: https://www.beyondjava.net/blog/quick-guide-writing-byte-code-asm
-
-[NOTE.speaker]
---
-* Byteman works by modifying the bytecode of your application classes at runtime.
-
-* see example `part1/01_simple`
---
 
 == Java agent
 
@@ -226,17 +224,6 @@ java -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm,sys:helper.ja
 --
 
 
-== !
-
-image:{images}/misc/cajk.jpg[role="noborder", , height="300"]
-
-http://blog.eisele.net/2015/02/byteman-swiss-army-knife-for-byte-code.html
-
-[NOTE.speaker]
---
-Please submit your talk to our lighting talks schedule.
---
-
 == Other tools for working with bytecode
 
 * ASM: http://asm.ow2.org
@@ -252,7 +239,8 @@ Please submit your talk to our lighting talks schedule.
  * Bytebuddy - Byte Buddy is to work declaratively, both by focusing
    on its domain specific language and the use of annotations
  ** How does it compare to bytebuddy? (http://blog.eisele.net/2015/02/byteman-swiss-army-knife-for-byte-code.html)
-    Different purpose: Byteman provides A LOT helpers to aid in debugging code. Joining/Rendezvous of several Threads is very easy to achieve, also quickly tracing the execution path is very easy.
+    Different purpose: Byteman provides A LOT helpers to aid in debugging code. Joining/Rendezvous of several Threads is very easy to achieve,
+    also quickly tracing the execution path is very easy.
     So ByteMan assists with unit testing and finding trick bugs, ByteBuddy goes more into the direction of AspectJ
  * cglib - long living project, not much active development
  * Java proxies (stole from bytebuddy page): The Java Class Library comes with a proxy toolkit
@@ -262,8 +250,13 @@ Please submit your talk to our lighting talks schedule.
 
 == References
 
- * Byteman guide: http://byteman.jboss.org/documentation
- * Java agent:  https://zeroturnaround.com/rebellabs/how-to-inspect-classes-in-your-jvm
+ * Byteman doc: http://byteman.jboss.org/documentation
+ ** https://developer.jboss.org/wiki/ABytemanTutorial
  * http://www.mastertheboss.com/jboss-frameworks/byteman/introduction-to-byteman
- * http://www.beyondjava.net/blog/quick-guide-writing-byte-code-asm/
+ * http://blog.eisele.net/2015/02/byteman-swiss-army-knife-for-byte-code.html
  * http://www.c2b2.co.uk/middleware-blog/using-custom-helpers-with-byteman.php
+ * Java agent:  https://zeroturnaround.com/rebellabs/how-to-inspect-classes-in-your-jvm
+
+== !
+
+image::cajk.jpg[role="noborder", , height="300"]
