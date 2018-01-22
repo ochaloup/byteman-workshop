@@ -5,7 +5,7 @@ package org.jboss.btm.workshop;
  * On running it prints: <code>Hellow world!<code>.
  * </p>
  * <pre>
- * java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.byteman.workshop.Task1HelloWorld
+ * java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld
  * </pre>
  */
 public class Task1HelloWorld 

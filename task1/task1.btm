@@ -6,3 +6,12 @@ IF TRUE
 DO
   $message = "Hello Byteman!"
 ENDRULE
+
+RULE change message waiting
+CLASS Task1HelloWorldWaiting
+METHOD write
+AT ENTRY
+IF TRUE
+DO
+  $1 = "Hello Byteman!"
+ENDRULE

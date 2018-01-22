@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
  * On different input it prints: <code>Hellow world!<code>.
  * </p>
  * <pre>
- * java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.byteman.workshop.Task1HelloWorldWaiting
+ * java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorldWaiting
  * </pre>
  */
 public class Task1HelloWorldWaiting 

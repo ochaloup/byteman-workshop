@@ -22,63 +22,97 @@
 
 === Task
 
-* Run the java class `Task1HelloWorld` for you get printed message `Hello world!`
+* Run the java class `Task1HelloWorld` for you getting printed message `Hello world!`
 * With use of the Byteman script at `$BYTEMAN_WORKSHOP/task1/task1.btm` get printed
   `Hello Byteman!` instead
 
+=== Reference
+
+see Byteman programmer's guide section section
+http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#configuring-a-java-agent[Configuring a java agent]
+
 === Solution
 
-. When the sources are compiled (<<task1-setup>>) then run the java program at your console
+. when the sources are compiled (<<task1-setup>>) then run the java program at your console
   `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
-. Attach the Byteman java agent to the starting java program and provide the Byteman script
+. attach the Byteman java agent to the starting java program and provide the Byteman script
   with rule changing the program behaviour
   `java -javaagent:$BYTEMAN_JAR=script:./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
 
 [[part2]]
 == Part2: using Byteman scripts
 
+=== Task
 
-NOTE: do not put your (test) classes under package `org.jboss.byteman` as this is Byteman _home package_
-      and is threatened differently thus examples won't be working
+* Run the java class `Task1HelloWorldWaiting` for you getting printed message `Hello world!`
+  when you type any key
+* Check if the running java process has installed Byteman java agent
+* Install Byteman java agent to the running java process
+* Show and install Byteman rules (a script) to change the program behaviour
+
+=== Reference
+
+see Byteman programmer's guide section section
+http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#installing-byteman-in-a-running-jvm-using-script-bminstall[Installing Byteman in a Running JVM using Script bminstall]
+
+=== Solution
+
+. when the sources are compiled (<<task1-setup>>) then run the java program at your console
+  `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorldWaiting`
+.. hit enter to see message `Hellow world!`
+. you will need to have configured environmental variable `$JAVA_HOME` and `$BYTEMAN_WORKSHOP`
+. open new console window where you define `$BYTEMAN_HOME` (see link:../README.adoc[prerequisites], `export BYTEMAN_HOME="$BYTEMAN_WORKSHOP/libs/byteman-download-4.0.0"`)
+  .. `$BYTEMAN_HOME/bin/bmsubmit.sh` - you can experience `ConnectionException`, see whole stacktrace: <<bmsubmit1>>
+  .. you need to find out java process id (`pid`): `jps | grep Task1`
+  .. now you will install Byteman agent to the locally running java process with command
+     `$BYTEMAN_HOME/bin/bminstall.sh <pid>`
+    * `bminstall.sh` installs the Byteman java agent to the defined `<pid>` where
+      java agent opens port and receives commands. The default the agent listens to the socket `9091`. +
+      If you run the `bmsubmit.sh` in the next step it tries to connect to the default `port` at `localhost`. +
+      If you need to change the port check `$BYTEMAN_HOME/bin/bminstall.sh -h` and `$BYTEMAN_HOME/bin/bmsubmit.sh -h`
+  .. install the `task1.btm` Byteman script via the listening agent to the running java program
+     `$BYTEMAN_HOME/bin/bmsubmit.sh "$BYTEMAN_WORKSHOP/task1/task1.btm"` +
+     and you should be informed that two rules were installed
+  .. run only `$BYTEMAN_HOME/bin/bmsubmit.sh` to see what are installed rules
+  . get back to the running program `Task1HelloWorldWaiting` and hit enter,
+    you will receive message `Hello Byteman!` now
+  . you can close the program by entering `quit`
 
 
-==
-. be at `part1/01_simple`
-. `cd byteman-simple`
-. `mvn install`
-. `java -cp target/byteman-simple-1.0-SNAPSHOT.jar org.jboss.qa.App`
-. `export BYTEMAN_HOME=/opt/byteman`
-. `java -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm -cp target/byteman-simple-1.0-SNAPSHOT.jar org.jboss.qa.App`
+== Notes
 
 [NOTE]
 ====
-You can get verbose info what byteman does with argument `-Dorg.jboss.byteman.verbose`
-and `-Dorg.jboss.byteman.debug=true` to get debug messages from rules.
+Instead of using `java --agent` command you can run your jar file with Byteman
+shell script `bmjava` where you define classpath and Byteman script with rules
+and it wraps the call of java itself for you. The `Task1HelloWorld` example will look
 
 ```
-java -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm -Dorg.jboss.byteman.verbose -cp target/byteman-simple-1.0-SNAPSHOT.jar org.jboss.qa.App
+$BYTEMAN_HOME/bin/bmjava.sh -l ./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld
 ```
 ====
 
-If you want to change (intercept) core java classes (like `java.lang.String` etc.)
-you need to get Byteman being loaded by boot class loader which is defined with
-javaagent option `boot:`.
+NOTE: do not put your (test) classes under package `org.jboss.byteman` as this is Byteman _home package_
+      and is threatened differently and scripts and rule won't be loaded
 
-. enable rule _Change message number 2_ and run with `boot` (otherwise you get exception)
-. `java -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm,boot:$BYTEMAN_HOME/lib/byteman.jar -cp target/byteman-simple-1.0-SNAPSHOT.jar org.jboss.qa.App`
+=== Errors
 
-or alternativelly something
-
-. `export JAVA_OPTS="$JAVA_OPTS -Xbootclasspath/p:$BYTEMAN_HOME/lib/byteman.jar -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm`
-
-Exception when boot is not used
-
+[[bmsubmit1]]
 ```
-Exception in thread "main" java.lang.NoClassDefFoundError: org/jboss/byteman/rule/exception/EarlyReturnException
-  at java.io.PrintStream.println(PrintStream.java)
-  at org.jboss.qa.App.main(App.java:12)
+$ $BYTEMAN_HOME/libs/byteman-download-4.0.0/bin/bmsubmit.sh
+Failed to process request: java.net.ConnectException: Connection refused (Connection refused)
+java.net.ConnectException: Connection refused (Connection refused)
+    at java.net.PlainSocketImpl.socketConnect(Native Method)
+    at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+    at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+    at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+    at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+    at java.net.Socket.connect(Socket.java:589)
+    at java.net.Socket.connect(Socket.java:538)
+    at java.net.Socket.<init>(Socket.java:434)
+    at java.net.Socket.<init>(Socket.java:211)
+    at org.jboss.byteman.agent.submit.Submit$Comm.<init>(Submit.java:881)
+    at org.jboss.byteman.agent.submit.Submit.submitRequest(Submit.java:787)
+    at org.jboss.byteman.agent.submit.Submit.listAllRules(Submit.java:176)
+    at org.jboss.byteman.agent.submit.Submit.main(Submit.java:1121)
 ```
-
-Other important option to set is `-Dorg.jboss.byteman.transform.all` which enables injection
-into `java.lang` classes. Normally the agent ignores rules which apply to this package on the grounds that by modifying these classes it will likely
-shoot itself in the foot changing the JVM functionality it relies on to execute rules.
