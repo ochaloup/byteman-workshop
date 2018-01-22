@@ -1,4 +1,4 @@
-package org.jboss.byteman.workshop;
+package org.jboss.btm.workshop;
 
 /**
  * <p>

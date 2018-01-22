@@ -13,7 +13,7 @@
 . go to the directory `$BYTEMAN_WORKSHOP/task1`: `cd "$BYTEMAN_WORKSHOP/task1"`
 . compile java sources: `mvn clean install`
 . check source code of `Task1HelloWorld*.java` classes
-  ** you can go to directory `$BYTEMAN_WORKSHOP/task1/src/main/java/org/jboss/byteman/workshop`
+  ** you can go to directory `$BYTEMAN_WORKSHOP/task1/src/main/java/org/jboss/btm/workshop`
   ** you can import the code as maven project under you IDE
 
 
@@ -29,13 +29,18 @@
 === Solution
 
 . When the sources are compiled (<<task1-setup>>) then run the java program at your console
-  `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.byteman.workshop.Task1HelloWorld`
-. Attach the Byteman agent to the starting java program and provide the Byteman rule
-  to change the program behaviour
-  `java -javaagent:$BYTEMAN_JAR=script:./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.byteman.workshop.Task1HelloWorld`
+  `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
+. Attach the Byteman java agent to the starting java program and provide the Byteman script
+  with rule changing the program behaviour
+  `java -javaagent:$BYTEMAN_JAR=script:./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
 
 [[part2]]
 == Part2: using Byteman scripts
+
+
+NOTE: do not put your (test) classes under package `org.jboss.byteman` as this is Byteman _home package_
+      and is threatened differently thus examples won't be working
+
 
 ==
 . be at `part1/01_simple`

@@ -6,12 +6,3 @@ IF TRUE
 DO
   $message = "Hello Byteman!"
 ENDRULE
-
-RULE Change message2
-CLASS org.jboss.byteman.workshop.Task1HelloWorld
-METHOD main
-AT ENTRY
-IF TRUE
-DO
-  System.out.println("Changing message")
-ENDRULE
