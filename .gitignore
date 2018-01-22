@@ -1,0 +1,16 @@
+.bundle/
+Gemfile.lock
+target/
+.classpath 
+.project
+.settings/
+.checkstyle
+
+# binaries required for the workshop
+libs/
+
+# temporary files
+*.orig.png
+*.orig.jpg
+thread-system-exit*.txt
+

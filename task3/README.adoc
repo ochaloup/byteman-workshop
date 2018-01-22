@@ -1,0 +1,230 @@
+= Task3: Writing Byteman rule and helper usage
+
+== Goal
+
+* <<part1>>: write a Byteman rule on your own
+* <<part2>>: write a Byteman rule on your own - tuning
+* <<part3>>: how to get running your own helper class
+
+IMPORTANT: Expecting you won't change the *java* code!
+
+== Source code overview
+
+The directory `task3` contains two maven modules
+
+* `greetings` containing code of the program we will work with. There is hierarchy
+  of greeting instances taken from interface `org.jboss.btm.workshop.Task3GreetingsProcessor`.
+  Then there is main class taken arguments from command line and pass them to the
+  processors which then returns an text output.
+* `helper` is module containing maven helper class which functionality is for more
+  complicated code which is not permitted under Byteman action script DSL,
+  helper class is `org.jboss.btm.workshop.Task3Helper`
+
+[[task3-setup]]
+== Setup
+
+. setup your environment at link:../README.adoc[prerequisites], ensures sources are compiled (`mvn install -DskipTests`)
+. go to the directory `$BYTEMAN_WORKSHOP/task3`: `cd "$BYTEMAN_WORKSHOP/task3"`
+. you can import the projects from folders `greetings` and `helper` to you IDE
+
+[[part1]]
+== Part1: write a Byteman rule
+
+=== Task
+
+* write one Byteman rule which changes behaviour of `Task3GreetingsProcessor1`
+  and `Task3GreetingsProcessor2` to changes return values when
+  greetings words *hello* or *hi* are passed to them as parameters
+* try to use only one Byteman rule to do the work!
+
+When you run the prepared java program with parameters `hello hi` you will get output
+```
+output: [#1:hello] [#2:abstract:hi]
+```
+
+the Byteman rule should change the behaviour when used with the same parameters to get
+```
+output: [#1:god bless you] [#2:abstract:god bless you]
+```
+
+if the Byteman rule is applied and you run with other parameters e.g. `hola ola` the Byteman rule does not change
+the behaviour of the program
+```
+output: [#1:hola] [#2:abstract:ola]
+```
+
+=== Hints
+
+* go to the directory `$BYTEMAN_WORKSHOP/task3/greetings` and observe sources `$BYTEMAN_WORKSHOP/task3/greetings/src/main/java`
+* run the program to see the output
+  .. `cd $BYTEMAN_WORKSHOP/task3/greetings`
+  .. `java -cp target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main hello hi`
+* you can observe there is an interface and implementations
+* Byteman DSL skeleton is
+```
+RULE ...
+CLASS <or> INTERFACE ...
+METHOD ...
+AT ...
+IF ...
+DO ...
+ENDRULE
+```
+* if you want to use only one rule to get the work done, check inspiration at
+  http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#overriding-interface-rules
+* you can check content of the method parameters `$1`, `$2`, ... in the `IF` clause, see
+  http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-bindings-and-parameterization
+* you can even redefine the method parameters `$1`, `$2`, ... in the `DO` clause, see
+* you can use the empty `task3.btm` file to write the Byteman rule into and run then
+** `java -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task3/greetings/task3.btm -cp $BYTEMAN_WORKSHOP/task3/greetings/target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main hello hi`
+* you can check the syntax of the `btm` file with `bmcheck` tool
+** `$BYTEMAN_HOME/bin/bmcheck.sh -p org.jboss.btm.workshop -cp $BYTEMAN_WORKSHOP/task3/greetings/target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar task3.btm`
+* you can get verbose/debug messages from byteman processing when you use
+** `java -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task3/greetings/task3.btm -cp $BYTEMAN_WORKSHOP/task3/greetings/target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug org.jboss.btm.workshop.Task3Main hello hi`
+
+=== Solution
+
+Possible solution script is
+
+```
+RULE change message when it's greeting
+INTERFACE ^Task3GreetingsProcessor
+METHOD process
+AT ENTRY
+IF $1.contains("hello") || $1.contains("hi")
+DO
+  $1 = "god bless you"
+ENDRULE
+```
+
+* for influence all the child classes you need to use the `INTERFACE` with sign `^`
+  for rule being propagated down through the abstract class
+* the `$1` says the first parameter passed to the method `process` of interface `Task3GreetingsProcessor`
+* you can check in `IF` the method parameter and at the same time you can change its value
+
+
+[[part2]]
+== Part2: write a Byteman rule : get rid of word 'abstract' in the output _(Optional)_
+
+=== Task
+
+* write one Byteman rule which changes behaviour of `Task3GreetingsProcessor2`
+  to not make showing word *abstract*
+
+Normal output with parameters `hello hi` is
+```
+output: [#1:hello] [#2:abstract:hi]
+```
+
+when the Byteman rule is applied the result should be
+```
+output: [#1:hello] [#2:hi]
+```
+
+=== Hints
+
+* here we expect to change what is processed in the `Task3AbstractGreetingsProcessor`
+  and we expect to change the method returned value, see
+  http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-actions
+
+=== Solution
+
+Presenting two solutions (there could be much more)
+
+==== First way
+
+```
+RULE do not involve abstract parent return #1
+CLASS Task3AbstractGreetingsProcessor
+METHOD parentProcessor
+#   AT ENTRY could be used as well but there won't be available $!
+AT EXIT
+IF TRUE
+DO
+  debug("I would like to return '" + $! + "' but there will be '" + $1 + "'");
+  RETURN $1
+ENDRULE
+```
+
+* here we use `RETURN` to say what should be returned when leaving the method
+** all code of the method is already processed and we can touch the `$!` representing the value which will
+  be put to the stack as the method return value if we don't change it
+
+==== Second way
+
+```
+RULE do not involve abstract parent return #2
+CLASS Task3GreetingsProcessor2
+METHOD process
+AFTER INVOKE parentProcessor
+IF TRUE
+DO
+  debug("I would like to return '" + $! + "' but there will be '" + $1 + "'");
+  $! = $1
+ENDRULE
+```
+
+* here we changes the variable `$!` which represents the value at the stack that
+  would be said being the return value of the invoked method
+
+[[part3]]
+== Part3: using Byteman helper
+
+=== Task
+
+* take your Byteman rule from <<part1>> and tune it with use of prepared Byteman helper
+  `Task3Helper`
+
+=== Hints
+
+* `Task3Helper` knows to load list of lines (greetings) from a file,
+  in this case by default it's file `task3.greetings` loaded from classpath
+* You can use the prepared Byteman rule presented in solution of the <<part1>>
+  and change it to use the Byteman helper
+
+```
+RULE change message when it's greeting
+INTERFACE ^Task3GreetingsProcessor
+METHOD process
+AT ENTRY
+IF $1.contains("hello") || $1.contains("hi")
+DO
+  $1 = "god bless you"
+ENDRULE
+```
+* running the program with Byteman rule
+** `java -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task3/greetings/task3.btm -cp target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main ola hola`
+* remember existence of `HELPER` clause, see documentation about at
+  http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#user-defined-rule-helpers
+* Byteman needs to know path to the helper at classpath, here at `$BYTEMAN_WORKSHOP/task3/helper/target/byteman-workshop-task3-helper-1.0.0-SNAPSHOT.jar`
+
+=== Solution
+
+. helper classes are used for providing more complicated functionality that is not permitted
+  by Byteman script DSL (which is quite restrictive)
+. use clause `HELPER` in your Byteman rule for you can start using any public method from the helper class
+. you can use the method `isGreeting(java.lang.String)` which loads a filename defined by system property
+  `org.jboss.byteman.task3.greetingsfile` and then compare if the passed parameter equals
+  any of the value found in the loaded file
+  ** see source at `$BYTEMAN_WORKSHOP/task3/helper/src/main/java/org/jboss/btm/workshop/helper/Task3Helper.java`
+. the rule could be
+```
+RULE change message when it's greeting
+INTERFACE ^Task3GreetingsProcessor
+HELPER org.jboss.btm.workshop.helper.Task3Helper
+METHOD process
+AT ENTRY
+IF isGreeting($1)
+DO
+  $1 = "god bless you"
+ENDRULE
+```
+. now you can provide your helper to classpath for Byteman can load it. We use the Byteman agent
+  way of definition of system properties `prop:` to say what is the file with greetings to be loaded.
+  You need to put the current directory to the classpath as there is our file `task3.greetings` placed.
+  ** running from folder `$BYTEMAN_WORKSHOP/task3/greetings`
+  ** `java -javaagent:$BYTEMAN_JAR=script:./task3.helper.btm,prop:org.jboss.byteman.task3.greetingsfile=task3.greetings -cp $BYTEMAN_WORKSHOP/task3/helper/target/byteman-workshop-task3-helper-1.0.0-SNAPSHOT.jar:target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar:. org.jboss.btm.workshop.Task3Main hello yay`
+  ** debug and verbose to see processing via `-Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug`
+  ** when there is more complicated classpath handling you can use the Byteman agent property `sys:`
+     to declare the helper jar should be loaded byt system class loader
+  ** `java -javaagent:$BYTEMAN_JAR=script:./task3.helper.btm,prop:org.jboss.byteman.task3.greetingsfile=task3.greetings,sys:$BYTEMAN_WORKSHOP/task3/helper/target/byteman-workshop-task3-helper-1.0.0-SNAPSHOT.jar -cp target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar:. org.jboss.btm.workshop.Task3Main hello yay`

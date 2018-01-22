@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>Task4: bmunit and dtest</name>
+
+  <groupId>org.jboss.byteman.workshop</groupId>
+  <artifactId>byteman-workshop-task4</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    
+    <version.assertj>3.9.0</version.assertj>
+    <version.byteman>4.0.0</version.byteman>
+    <version.junit>4.12</version.junit>
+
+    <rmiregistry.port>1099</rmiregistry.port>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-surefire-plugin</artifactId>
+         <configuration>
+             <systemPropertyVariables combine.children="append">
+                 <org.jboss.byteman.contrib.dtest.rmiregistry.port>${rmiregistry.port}</org.jboss.byteman.contrib.dtest.rmiregistry.port>
+             </systemPropertyVariables>
+         </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${version.junit}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.assertj</groupId>
+          <artifactId>assertj-core</artifactId>
+          <version>${version.assertj}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.jboss.byteman</groupId>
+          <artifactId>byteman-bmunit</artifactId>
+          <version>${version.byteman}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.jboss.byteman</groupId>
+          <artifactId>byteman-dtest</artifactId>
+          <version>${version.byteman}</version>
+          <scope>test</scope>
+      </dependency>
+  </dependencies>
+</project>

@@ -1,0 +1,317 @@
+= Task5: On tracing
+
+== Goal
+
+* <<part1>>: overview of Byteman sample scripts and how they can help in tracing and searching bugs
+
+== Source code overview
+
+The directory `task5` contains simple java program started with class `org.jboss.btm.workshop.Task5Main`
+which contain main method to be started. +
+The main method creates in cycle instances of `java.util.concurrent.Callable`
+which are then submitted to executor and run. +
+Each callable instance makes change in shared static counter and ends.
+
+[[task5-setup]]
+== Setup
+
+. setup your environment at link:../README.adoc[prerequisites], ensures sources are compiled (`mvn install -DskipTests`)
+. go to the directory `$BYTEMAN_WORKSHOP/task5`: `cd "$BYTEMAN_WORKSHOP/task5"`
+
+[[part1]]
+== Part1: use sample btm script to monitor thread activity
+
+=== Task
+
+* Observe  https://github.com/bytemanproject/byteman/blob/master/sample/scripts/
+** there are scripts containing samples to help in monitoring your application
+* Run the program with script `ThreadMonitorHistory.btm` and observe output file `./thread-system-exit-0.txt`
+* _(Optional)_ Investigate why the program is not finished when the `btm` script is used.
+
+=== Hints
+
+* after compilation <<task5-setup>> you can run the program from console
+** `java -cp target/byteman-workshop-task5-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task5Main`
+* use the `btm` script at `$BYTEMAN_WORKSHOP/task5/ThreadMonitorHistory.btm`
+** original script is at https://github.com/bytemanproject/byteman/blob/master/sample/scripts/ThreadMonitorHistory.btm[ThreadMonitorHistory.btm]
+* when running the program with `-javaagent` and the script it will get stuck,
+  exit with `CTRL+C` or `kill`
+
+=== Solution
+
+* the original https://github.com/bytemanproject/byteman/blob/master/sample/scripts/ThreadMonitorHistory.btm[ThreadMonitorHistory.btm]
+  script does not consider existence of the `Task5Main` class where we want to get information about threads
+  when it's exited. You can use adjusted script `$BYTEMAN_WORKSHOP/task5/ThreadMonitorHistory.btm` which consider so.
+* you need to
+  .. add byteman agent to be attached to the running program (use `-javaagent:` or consider the info
+     https://github.com/bytemanproject/byteman/blob/master/sample/scripts/ThreadMonitorHistory.btm#L40[in the script])
+  .. handling `Thread` classes consist injection of rules under `java` inner classes,
+     you should consider usage of parameter `-Dorg.jboss.byteman.transform.all`
+  .. the `btm` script uses proper `Helper` class and it's needed to be added to the classpath
+  .. as handling with java internal classes we need to have Byteman classes loaded by boot class loader
+* run
+  ** `java -javaagent:$BYTEMAN_JAR=script:./ThreadMonitorHistory.btm,boot:/home/ochaloup/.m2/repository/org/jboss/byteman/byteman-sample/4.0.0/byteman-sample-4.0.0.jar,boot:$BYTEMAN_JAR -cp target/byteman-workshop-task5-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.transform.all  org.jboss.btm.workshop.Task5Main`
+* now you can check existence of file `./thread-system-exit-0.txt` where are gathered information
+  about started threads and their stacktraces
+* you can observe that the java program was not finished but it hangs - use `kill`
+  command or `CTRL+C` and follow further
+
+==== _(Optional)_ Finding what is cause of the stuck program
+
+. start the program with `btm` script again
+  ** `java -javaagent:$BYTEMAN_JAR=script:./ThreadMonitorHistory.btm,boot:/home/ochaloup/.m2/repository/org/jboss/byteman/byteman-sample/4.0.0/byteman-sample-4.0.0.jar,boot:$BYTEMAN_JAR -cp target/byteman-workshop-task5-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.transform.all  org.jboss.btm.workshop.Task5Main`
+. in different console get process id (`<pid>`) of the running java programs `jps -l`
+. take thread dump of the java process `jstack -l <pid>`
+. you will get stacktrace similar to <<stuck-stacktrace>>. The interesting part is
+  the waiting thread (in our example `pool-1-thread-1`).
+. from that we can see there is trouble with `ScheduledThreadPoolExecutor`
+. let's use the  `./thread-system-exit-0.txt` and check what it reveals see <<btm-thread-listing>>
+. from the thread start part we can find
+```
+...
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper.writeAllEventsToFile(ThreadHistoryMonitorHelper.java:275)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper.writeAllEventsToFile(ThreadHistoryMonitorHelper.java:242)
+...
+```
+. checking the code shows https://github.com/bytemanproject/byteman/blob/master/sample/src/org/jboss/byteman/sample/helper/ThreadHistoryMonitorHelper.java#L275
+  and reveals we miss shutdown of the executor
+. kind of https://github.com/ochaloup/byteman/blob/ebb89e6af93a6dd2a1620554af377887f2a6177c/sample/src/org/jboss/byteman/sample/helper/ThreadHistoryMonitorHelper.java#L295
+
+
+== Notes
+
+[[stuck-stacktrace]]
+```
+Full thread dump Java HotSpot(TM) 64-Bit Server VM (25.161-b12 mixed mode):
+
+"Attach Listener" #16 daemon prio=9 os_prio=0 tid=0x00007f71a0001000 nid=0x22b3 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"DestroyJavaVM" #15 prio=5 os_prio=0 tid=0x00007f71f8438800 nid=0x226e waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"pool-1-thread-1" #10 prio=5 os_prio=0 tid=0x00007f71f83f3000 nid=0x2281 waiting on condition [0x00007f71cfefd000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x000000071c5d19d0> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:1081)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:809)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+   Locked ownable synchronizers:
+	- None
+
+"Service Thread" #9 daemon prio=9 os_prio=0 tid=0x00007f71f8397800 nid=0x227f runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"C1 CompilerThread3" #8 daemon prio=9 os_prio=0 tid=0x00007f71f833f000 nid=0x227e waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"C2 CompilerThread2" #7 daemon prio=9 os_prio=0 tid=0x00007f71f8335000 nid=0x227d waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"C2 CompilerThread1" #6 daemon prio=9 os_prio=0 tid=0x00007f71f832a000 nid=0x227c waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"C2 CompilerThread0" #5 daemon prio=9 os_prio=0 tid=0x00007f71f8329800 nid=0x227b waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"Signal Dispatcher" #4 daemon prio=9 os_prio=0 tid=0x00007f71f8207800 nid=0x227a runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x00007f71f81d4800 nid=0x2279 in Object.wait() [0x00007f71e09a1000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x000000071bb88ec0> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:143)
+	- locked <0x000000071bb88ec0> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:164)
+	at java.lang.ref.Finalizer$FinalizerThread.run(Redefined)
+
+   Locked ownable synchronizers:
+	- None
+
+"Reference Handler" #2 daemon prio=10 os_prio=0 tid=0x00007f71f81d0000 nid=0x2278 in Object.wait() [0x00007f71e0aa2000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x000000071bb86b68> (a java.lang.ref.Reference$Lock)
+	at java.lang.Object.wait(Object.java:502)
+	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)
+	- locked <0x000000071bb86b68> (a java.lang.ref.Reference$Lock)
+	at java.lang.ref.Reference$ReferenceHandler.run(Redefined)
+
+   Locked ownable synchronizers:
+	- None
+
+"VM Thread" os_prio=0 tid=0x00007f71f81c8000 nid=0x2277 runnable
+
+"GC task thread#0 (ParallelGC)" os_prio=0 tid=0x00007f71f8020000 nid=0x226f runnable
+
+"GC task thread#1 (ParallelGC)" os_prio=0 tid=0x00007f71f8022000 nid=0x2270 runnable
+
+"GC task thread#2 (ParallelGC)" os_prio=0 tid=0x00007f71f8023800 nid=0x2271 runnable
+
+"GC task thread#3 (ParallelGC)" os_prio=0 tid=0x00007f71f8025800 nid=0x2272 runnable
+
+"GC task thread#4 (ParallelGC)" os_prio=0 tid=0x00007f71f8027000 nid=0x2273 runnable
+
+"GC task thread#5 (ParallelGC)" os_prio=0 tid=0x00007f71f8029000 nid=0x2274 runnable
+
+"GC task thread#6 (ParallelGC)" os_prio=0 tid=0x00007f71f802a800 nid=0x2275 runnable
+
+"GC task thread#7 (ParallelGC)" os_prio=0 tid=0x00007f71f802c800 nid=0x2276 runnable
+
+"VM Periodic Task Thread" os_prio=0 tid=0x00007f71f83b2800 nid=0x2280 waiting on condition
+
+JNI global references: 344
+```
+
+[[btm-thread-listing]]
+```
++++ Begin Thread.create Events, count=7 +++
+
+#6 [Thread.create], pool-1-thread-1:10(runnable=class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1, by=main:1)
+java.lang.Thread.<init>(Thread.java:679)
+java.util.concurrent.Executors$DefaultThreadFactory.newThread(Executors.java:613)
+java.util.concurrent.ThreadPoolExecutor$Worker.<init>(ThreadPoolExecutor.java:619)
+java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:932)
+java.util.concurrent.ThreadPoolExecutor.ensurePrestart(ThreadPoolExecutor.java:1603)
+java.util.concurrent.ScheduledThreadPoolExecutor.delayedExecute(ScheduledThreadPoolExecutor.java:334)
+java.util.concurrent.ScheduledThreadPoolExecutor.schedule(ScheduledThreadPoolExecutor.java:533)
+java.util.concurrent.Executors$DelegatedScheduledExecutorService.schedule(Executors.java:729)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper.writeAllEventsToFile(ThreadHistoryMonitorHelper.java:275)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper.writeAllEventsToFile(ThreadHistoryMonitorHelper.java:242)
+sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+java.lang.reflect.Method.invoke(Method.java:498)
+org.jboss.byteman.rule.expression.MethodExpression.interpret(MethodExpression.java:366)
+org.jboss.byteman.rule.Action.interpret(Action.java:144)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper_HelperAdapter_Interpreted_2.fire(ThreadMonitorHistory.btm:-1)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper_HelperAdapter_Interpreted_2.execute0(ThreadMonitorHistory.btm:-1)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper_HelperAdapter_Interpreted_2.execute(ThreadMonitorHistory.btm:-1)
+org.jboss.byteman.rule.Rule.execute(Rule.java:798)
+org.jboss.byteman.rule.Rule.execute(Rule.java:767)
+org.jboss.btm.workshop.Task5Main.main(Task5Main.java:-1)
+
++++ End Thread.create Events +++
++++ Begin Thread.create Thread Names (count=7) +++
+C2 CompilerThread0:5
+C2 CompilerThread1:6
+C2 CompilerThread2:7
+C1 CompilerThread3:8
+Service Thread:9
+main:1
+pool-1-thread-1:10(class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1)
++++ End Thread.create Thread Names +++
++++ Begin Thread.start Events, count=1 +++
+#0 [Thread.start], pool-1-thread-1:10(runnable=class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1, by=main:1)
+java.lang.Thread.start(Thread.java:-1)
+java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:957)
+java.util.concurrent.ThreadPoolExecutor.ensurePrestart(ThreadPoolExecutor.java:1603)
+java.util.concurrent.ScheduledThreadPoolExecutor.delayedExecute(ScheduledThreadPoolExecutor.java:334)
+java.util.concurrent.ScheduledThreadPoolExecutor.schedule(ScheduledThreadPoolExecutor.java:533)
+java.util.concurrent.Executors$DelegatedScheduledExecutorService.schedule(Executors.java:729)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper.writeAllEventsToFile(ThreadHistoryMonitorHelper.java:275)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper.writeAllEventsToFile(ThreadHistoryMonitorHelper.java:242)
+sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+java.lang.reflect.Method.invoke(Method.java:498)
+org.jboss.byteman.rule.expression.MethodExpression.interpret(MethodExpression.java:366)
+org.jboss.byteman.rule.Action.interpret(Action.java:144)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper_HelperAdapter_Interpreted_2.fire(ThreadMonitorHistory.btm:-1)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper_HelperAdapter_Interpreted_2.execute0(ThreadMonitorHistory.btm:-1)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper_HelperAdapter_Interpreted_2.execute(ThreadMonitorHistory.btm:-1)
+org.jboss.byteman.rule.Rule.execute(Rule.java:798)
+org.jboss.byteman.rule.Rule.execute(Rule.java:767)
+org.jboss.btm.workshop.Task5Main.main(Task5Main.java:-1)
+
++++ End Thread.start Events +++
++++ Begin Thread.start Thread Names (count=1) +++
+pool-1-thread-1:10(class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1)
++++ End Thread.start Thread Names +++
++++ Begin Thread.exit Events, count=0 +++
++++ End Thread.exit Events +++
++++ Begin Thread.exit Thread Names (count=0) +++
++++ End Thread.exit Thread Names +++
++++ Begin Runable.run Events, count=5 +++
+#0 [Runable.run], pool-1-thread-1:10(runnable=class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1, by=main:1)
+java.lang.Thread.run(Thread.java:-1)
+
+#1 [Runable.run], pool-1-thread-1:10(runnable=class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1, by=main:1)
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:-1)
+java.lang.Thread.run(Thread.java:748)
+
+#2 [Runable.run], pool-1-thread-1:10(runnable=class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1, by=main:1)
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:-1)
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+java.lang.Thread.run(Thread.java:748)
+
+#3 [Runable.run], pool-1-thread-1:10(runnable=class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1, by=main:1)
+java.util.concurrent.FutureTask.run(FutureTask.java:-1)
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+java.lang.Thread.run(Thread.java:748)
+
+#4 [Runable.run], pool-1-thread-1:10(runnable=class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1, by=main:1)
+org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1.run(ThreadHistoryMonitorHelper.java:-1)
+java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+java.util.concurrent.FutureTask.run(FutureTask.java:266)
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+java.lang.Thread.run(Thread.java:748)
+
++++ End Runable.run Events +++
++++ Begin Runable.run Thread Names (count=5) +++
+pool-1-thread-1:10(class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1)
+pool-1-thread-1:10(class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1)
+pool-1-thread-1:10(class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1)
+pool-1-thread-1:10(class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1)
+pool-1-thread-1:10(class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1)
++++ End Runable.run Thread Names +++
++++ Begin Thread.start but not exit Thread Names (count=1) +++
+pool-1-thread-1:10(class org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper$1)
++++ End Thread.start but not exit Thread Names +++
+```
+
+java -javaagent:$BYTEMAN_JAR=script:./ThreadMonitorHistory.btm,sys:$BYTEMAN_HOME/sample/lib/byteman-sample.jar -cp target/byteman-workshop-task5-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug  org.jboss.btm.workshop.Task5Main
+java -javaagent:$BYTEMAN_JAR=script:./ThreadMonitorHistory.btm,boot:$BYTEMAN_HOME/sample/lib/byteman-sample.jar,boot:$BYTEMAN_JAR -cp target/byteman-workshop-task5-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug   org.jboss.btm.workshop.Task5Main
+-Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug
+https://github.com/bytemanproject/byteman/compare/master...ochaloup:shutdown-sample-executor#diff-145297daa8c2622eedbee1d28f1ec8ebR295
+java -javaagent:$BYTEMAN_JAR=script:./ThreadMonitorHistory.btm,boot:/home/ochaloup/.m2/repository/org/jboss/byteman/byteman-sample/4.0.0/byteman-sample-4.0.0.jar,boot:$BYTEMAN_JAR -cp target/byteman-workshop-task5-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.transform.all  org.jboss.btm.workshop.Task5Main
+java -javaagent:$BYTEMAN_JAR=script:./ThreadMonitorHistory.btm,boot:$BYTEMAN_HOME/sample/lib/byteman-sample.jar,boot:$BYTEMAN_JAR -cp target/byteman-workshop-task5-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.transform.all  org.jboss.btm.workshop.Task5Main

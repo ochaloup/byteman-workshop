@@ -1,0 +1,9 @@
+# --- test threadMethodNotExecuted
+RULE not allowing subtract thread
+INTERFACE Callable
+METHOD call
+AT ENTRY
+IF callerEquals("Thread.run", true, 99)
+DO
+  RETURN 0
+ENDRULE

@@ -1,0 +1,20 @@
+RULE message handling
+CLASS java.io.PrintStream
+METHOD println(java.lang.String)
+# TODO: AT ENTER
+AT ENTRY
+IF TRUE
+DO
+  $1 = "Hello Byteman! : Task2"
+ENDRULE
+
+# TODO: message handling
+RULE print info message
+CLASS Task2HelloWorld
+METHOD main
+AT INVOKE PrintStream.println
+IF TRUE
+DO
+  # TODO: System.out.println("Parameter one is: " + $@[1])
+  System.out.print("Parameter one is: " + $@[1] + "\n")
+ENDRULE

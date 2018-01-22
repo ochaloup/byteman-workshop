@@ -1,0 +1,104 @@
+= Task4: Testing with Byteman: BMUnit and dtest
+
+== Goal
+
+* <<part1>>: check how the BMUnit can be used in testing
+* <<part2>>: short introduction to dtest capabilities
+
+== Source code overview
+
+The directory `task4` contains sources (`src/main/java`) and tests (`src/test/java`).
+The source code is few instances of `java.util.concurrent.Callable` and
+changing value of static counter variable. +
+The tests uses the source callable classes and invokes server threads
+where using Byteman scripts to influence how they behaves.
+
+ * `BMUnitTest` containing several tests which should be get to passed with
+   use of the byteman scripts
+ * `dtestTest` is meant for injecting the same script as in case of the `BMUnitTest`
+   but when dtest tooling is used
+
+
+[[task2-setup]]
+== Setup
+
+. setup your environment at link:../README.adoc[prerequisites], ensures sources are compiled (`mvn install -DskipTests`)
+. go to the directory `$BYTEMAN_WORKSHOP/task4`: `cd "$BYTEMAN_WORKSHOP/task4"`
+
+
+[[part1]]
+== Part1: use BMUnit annotations to run tests with Byteman
+
+=== Task
+
+* Use BMUnit library to attach Byteman scripts to the tests
+* The goal is write Byteman rules to make the tests pass,
+  the intention of the script is described in the test javadoc
+* Spend some time to checking usage of some Byteman helper util methods
+  which is pretty handy for working with multi-threaded programs
+
+=== References
+
+ https://developer.jboss.org/wiki/BMUnitUsingBytemanWithJUnitOrTestNGFromMavenAndAnt
+
+=== Hints
+
+* writing the rules is not easy and needs time and debugging. For you can touch
+  the BMUnit annotations use the script file `task4.example.btm` containing
+  the rules, use one of the test and rewrite the rule to the annotation
+* BMUnit involves using `BMUnitRunner` (JUnit) and annotations `@BMUnitConfig`,
+  `@BMRule(s)`, `@BMScript(s)`
+
+=== Solution
+
+Let's take a look at the first two test methods. The rest is similar.
+
+. for BMUnit would be activated you need to use junit runner for the class `@RunWith(BMUnitRunner.class)`
+  ** this ensures the Byteman agent is installed for your JVM and `@BMRule`/`@BMScript`
+     have endpoint to contact to submit the rules to
+. you can use `@BMConfig` annotations to change settings. You can for example
+  force to show byteman debug inofrmation
+  ** `@BMUnitConfig(debug = true, verbose = true)`
+. check the `task4.example.btm` file with script for test `notAllowingSubtractThread`
+. create annotation `@BMRule` at the test `notAllowingSubtractThread`
+  and used parameters `name`, `targetClass`, `isInterface = true`, `targetMethod`,
+  `targetLocation`, `condition` and `action` with values taken from the rule in the `btm` file
+. run the test `mvn test -Dtest=BMUnitTest#notAllowingSubtractThread`
+. for the test method `threadMethodNotExecuted` let's use `@BMScript` annotations.
+  It makes you to define path to `btm` script which will be applied for the test.
+. there is prepared file `src/test/resources/threadMethodNotExecuted.btm` which means
+  it's at the class path and thus loaded if used only by name
+. use annotation `@BMScript("threadMethodNotExecuted.btm")`
+. run test `mvn test -Dtest=BMUnitTest#threadMethodNotExecuted`
+
+
+[[part2]]
+== Part2: use dtest rule creator
+
+=== Task
+
+* use the dtest rule creation for creating the same rule as it's used `notAllowingSubtractThread`
+  in case of BMUnit example
+
+=== Hints
+
+* the dtest library does not know to attach Byteman agent to the running test
+  thus we use the ability of BMUnit library to do so
+* the dtest will be used just to create and submit a rule
+* the dtest starts with creation of `org.jboss.byteman.contrib.dtest.Instrumentor`
+  class which is then able to submit a rule to the agent
+* the rule is created with use of `org.jboss.byteman.contrib.dtest.RuleConstructor` class
+* the created rule is then installed `Instrumentor#installRule(RuleConstructor)`
+
+=== Solution
+
+. open the class `org.jboss.btm.workshop.DTestTest`
+. add annotation of BMUnit runner to get injected Byteman agent to the test JVM
+  ** `@RunWith(BMUnitRunner.class)`
+  ** you can use the `@BMUnitConfig(debug = true, verbose = true)`
+. at the start of the test method `notAllowingSubtractThread` start with
+  `RuleConstructor.createRule("not allowing subtract thread")` where the rule
+  could be found at `task4.example.btm`
+. you can use `instrumentor.instrumentClass(AdderThread.class)` which counts
+  number of invocation of methods under `AdderThread` and you can verify
+  if it follow your expectations
