@@ -1,0 +1,37 @@
+= Byteman basics: workshop
+
+These are resources for workshop about Byteman initially created
+for https://devconf.cz[DevConf.CZ - Brno 2018].
+
+The repository contains link:./slides/slides.adoc[slides for the presentation]
+and then directories for individual tasks that the workshop consists from (
+link:./task1[1], link:./task2[2], link:./task3[3], link:./task4[4], link:./task5[5]).
+
+== Prerequisites
+
+For the running particular tasks you will need
+
+* java jdk 8 (https://www.java.com/en/download/linux_manual.jsp)
+* maven (https://maven.apache.org/download.cgi)
+* Byteman binaries (agent jar) (http://byteman.jboss.org/downloads.html)
+* Byteman programmer's Guide ()
+
+=== Starting the workshop and install instructions
+
+==== Linux (Fedora 26)
+
+. clone repository of this workshop `git clone `
+. installing java
+  * _option 1_: `dnf install java java-devel`
+  * _option 2_
+    .. download java jdk from https://www.java.com/en/download/linux_manual.jsp
+       to
+    ..
+. SECOND STUFF
+
+==== Windows, MacOS, ...
+
+_installation instruction are for Linux as tested there,
+feel free to contribute with steps needed for other_
+
+*TODO:*

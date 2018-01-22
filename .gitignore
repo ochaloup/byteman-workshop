@@ -1,0 +1,9 @@
+.bundle/
+Gemfile.lock
+
+# binaries required for the workshop
+libs/
+
+# temporary files
+desktop_byteman_1920x1200.jpg
+
