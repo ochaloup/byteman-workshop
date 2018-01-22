@@ -4,6 +4,7 @@
 
 * <<part1>>: to get running simple java program with Byteman agent attached
 * <<part2>>: to know to use Byteman scripts to change rules to be executed
+* <<part3>>: to setup Byteman for running with WildFly
 
 [[task1-setup]]
 == Setup
@@ -79,6 +80,42 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#installi
   . you can close the program by entering `quit`
 
 
+[[part3]]
+== Part3: running with WildFly
+
+=== Task
+
+* to run Byteman script in WildFly installation
+
+=== Preparation
+
+. download WildFly 11 distribution
+  `wget http://download.jboss.org/wildfly/11.0.0.Final/wildfly-11.0.0.Final.zip -O "$BYTEMAN_WORKSHOP/libs/wildfly11.zip"`
+. `unzip -d "$BYTEMAN_WORKSHOP/libs" "$BYTEMAN_WORKSHOP/libs/wildfly11.zip"`
+. `export JBOSS_HOME="$BYTEMAN_WORKSHOP/libs/wildfly-11.0.0.Final"`
+
+=== Reference
+
+You can see some details at Byteman tutorial
+https://developer.jboss.org/wiki/ABytemanTutorial#how_do_i_run_jboss_as_with_byteman
+
+=== Solution
+
+. open the `$JBOSS_HOME/bin/standalone.conf` file in text editor
+.. add `JAVA_OPTS` option at the end of the `.conf` file to contain javaagent to be loaded
+   with reference to the script `JAVA_OPTS="$JAVA_OPTS -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task1/task1.btm"`
+.. check that value of `jboss.modules.system.pkgs` is setup with `org.jboss.byteman`,
+   which is then used at property `jboss.modules.system.pkgs`
+. run the WildFly `$JBOSS_HOME/bin/standalone.sh`you can see at the start-up message in the log:
+  `I'm Byteman and I'm here!`.
+
+Changing settings of `JAVA_OPTS` for WildFly startp is the same what is possible to be
+done for any other java program.
+
+As WildFly uses jboss modules there is restrictive class path visibility. The use of `jboss.modules.system.pkgs`
+says that the Byteman classes are searched for in the system classloader.
+That's why they are visible to all deployments. When not specified the `ClassNotFoundException` could be shown.
+
 == Notes
 
 [NOTE]
@@ -91,6 +128,20 @@ and it wraps the call of java itself for you. The `Task1HelloWorld` example will
 $BYTEMAN_HOME/bin/bmjava.sh -l ./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld
 ```
 ====
+
+[NOTE]
+====
+If you start Byteman with script and you don't want it starts listener and open
+the socket to receive commands you can use Byteman agent parameter `listener:false`.
+
+```
+java -javaagent:$BYTEMAN_JAR=script:./task1.btm,listener=false -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld
+```
+====
+
+NOTE: if you want to touch classes from some of the WildFly modules you can use
+      Byteman contrib module https://github.com/bytemanproject/byteman/tree/master/contrib/jboss-modules-system
+      for being able to use clause `IMPORT module.name` in the script
 
 NOTE: do not put your (test) classes under package `org.jboss.byteman` as this is Byteman _home package_
       and is threatened differently and scripts and rule won't be loaded
