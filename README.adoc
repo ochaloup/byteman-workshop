@@ -53,7 +53,7 @@ WARNING: steps referred through the workshop instructions are relative
   .. `unzip -d "$BYTEMAN_WORKSHOP/libs/" "$BYTEMAN_WORKSHOP/libs/byteman400.zip"`
   .. `export BYTEMAN_HOME="$BYTEMAN_WORKSHOP/libs/byteman-download-4.0.0/"`
   .. `export BYTEMAN_JAR="$BYTEMAN_HOME/lib/byteman.jar"`
-  .. to check byteman jar exists `file "$BYTEMAN_JAR"`
+  .. to check that byteman jar exists `file "$BYTEMAN_JAR"`
 
 
 NOTE: now you can find the http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.pdf[Byteman programmer's guide]

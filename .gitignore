@@ -1,5 +1,10 @@
 .bundle/
 Gemfile.lock
+target/
+.classpath 
+.project
+.settings/
+.checkstyle
 
 # binaries required for the workshop
 libs/
