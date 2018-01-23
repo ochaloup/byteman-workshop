@@ -2,6 +2,8 @@
 
 java -cp target/byteman-workshop-task3-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main ahoj
 java -javaagent:$BYTEMAN_JAR=script:./task3.btm -cp target/byteman-workshop-task3-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main ahoj
+/home/ochaloup/presentations/byteman-workshop/libs/byteman-download-4.0.0/bin/bmcheck.sh -p org.jboss.btm.workshop -cp target/byteman-workshop-task3-1.0.0-SNAPSHOT.jar task3.btm
+java -javaagent:$BYTEMAN_JAR=script:./task3.btm -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug -cp target/byteman-workshop-task3-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main hello hi
 
 
 

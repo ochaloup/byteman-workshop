@@ -15,8 +15,8 @@ public class Task3Main {
     	String arg2 = arg1;
     	if(args.length >= 2) arg2 = args[1];
 
-    	Task3Processor smt1 = new Task3Processor1();
-    	Task3Processor smt2 = new Task3Processor2();
+    	Task3GreetingsProcessor smt1 = new Task3GreetingsProcessor1();
+    	Task3GreetingsProcessor smt2 = new Task3GreetingsProcessor2();
 
         System.out.printf("We get [%s] [%s]%n", smt1.process(arg1), smt2.process(arg2));
     }
