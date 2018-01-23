@@ -1,11 +1,12 @@
-= Task3: Write your Byteman rule
+= Task3: Writing Byteman rule and helper usage
 
 java -cp target/byteman-workshop-task3-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main ahoj
 java -javaagent:$BYTEMAN_JAR=script:./task3.btm -cp target/byteman-workshop-task3-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main ahoj
 /home/ochaloup/presentations/byteman-workshop/libs/byteman-download-4.0.0/bin/bmcheck.sh -p org.jboss.btm.workshop -cp target/byteman-workshop-task3-1.0.0-SNAPSHOT.jar task3.btm
 java -javaagent:$BYTEMAN_JAR=script:./task3.btm -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug -cp target/byteman-workshop-task3-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main hello hi
-
-
+java -javaagent:$BYTEMAN_JAR=script:./task3.btm -cp target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main hello hi
+java -javaagent:$BYTEMAN_JAR=script:./task3.helper.btm,prop:org.jboss.byteman.task3.greetingsfile=task3.greetings -cp /home/ochaloup/presentations/byteman-workshop/task3/helper/target/byteman-workshop-task3-helper-1.0.0-SNAPSHOT.jar:target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar:. -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug org.jboss.btm.workshop.Task3Main helloa yay
+java -javaagent:$BYTEMAN_JAR=script:./task3.helper.btm,prop:org.jboss.byteman.task3.greetingsfile=task3.greetings,sys:$BYTEMAN_WORKSHOP/task3/helper/target/byteman-workshop-task3-helper-1.0.0-SNAPSHOT.jar -cp target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar:. -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug org.jboss.btm.workshop.Task3Main hello yay
 
 == Goal
 

@@ -6,3 +6,4 @@
   to show what is syntax for ASM
 * code of `crash recovery testsuite` showing during motivation slide
 * opened source codes of `org.jboss.byteman.agent.Main` to show how `premain` method looks like
+* opened source codes of `org.jboss.byteman.rule.helper.Helper` to show the utility methods

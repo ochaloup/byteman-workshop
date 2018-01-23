@@ -1,0 +1,10 @@
+RULE change message when it's greeting
+INTERFACE ^Task3GreetingsProcessor
+HELPER org.jboss.btm.workshop.helper.Task3Helper
+METHOD process
+AT ENTRY
+IF isGreeting($1)
+DO
+  $1 = "God bless you"
+ENDRULE
+
