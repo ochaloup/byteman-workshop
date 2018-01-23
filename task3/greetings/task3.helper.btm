@@ -5,6 +5,5 @@ METHOD process
 AT ENTRY
 IF isGreeting($1)
 DO
-  $1 = "God bless you"
+  $1 = "god bless you"
 ENDRULE
-

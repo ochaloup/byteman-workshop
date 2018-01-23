@@ -182,8 +182,37 @@ DO
   $1 = "god bless you"
 ENDRULE
 ```
-* you find the Byteman helper class under path "$BYTEMAN_HELPER"
+* you find the Byteman helper class under path `$BYTEMAN_WORKSHOP/task3/helper/target/byteman-workshop-task3-helper-1.0.0-SNAPSHOT.jar`
+* see documentation about using user defined helper via clause `HELPER` at
+  http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#user-defined-rule-helpers
 
 === Solution
 
-. the
+. helper classes are used for providing more complicated functionality that is not permitted
+  by Byteman script DSL (which is quite restrictive)
+. use clause `HELPER` in your Byteman rule for you can start using any public method from the helper class
+. you can use the method `isGreeting(java.lang.String)` which loads a filename defined by system property
+  `org.jboss.byteman.task3.greetingsfile` and then compare if the passed parameter equals
+  any of the value found in the loaded file
+  ** see source at `$BYTEMAN_WORKSHOP/task3/helper/src/main/java/org/jboss/btm/workshop/helper/Task3Helper.java`
+. the rule could be
+```
+RULE change message when it's greeting
+INTERFACE ^Task3GreetingsProcessor
+HELPER org.jboss.btm.workshop.helper.Task3Helper
+METHOD process
+AT ENTRY
+IF isGreeting($1)
+DO
+  $1 = "god bless you"
+ENDRULE
+```
+. now you can provide your helper to classpath for Byteman can load it. We use the Byteman agent
+  way of definition of system properties `prop:` to say what is the file with greetings to be loaded.
+  You need to put the current directory to the classpath as there is our file `task3.greetings` placed.
+  ** running from folder `$BYTEMAN_WORKSHOP/task3/greetings`
+  ** `java -javaagent:$BYTEMAN_JAR=script:./task3.helper.btm,prop:org.jboss.byteman.task3.greetingsfile=task3.greetings -cp $BYTEMAN_WORKSHOP/task3/helper/target/byteman-workshop-task3-helper-1.0.0-SNAPSHOT.jar:target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar:. org.jboss.btm.workshop.Task3Main hello yay`
+  ** debug and verbose to see processing via `-Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug`
+  ** when there is more complicated classpath handling you can use the Byteman agent property `sys:`
+     to declare the helper jar should be loaded byt system class loader
+  ** `java -javaagent:$BYTEMAN_JAR=script:./task3.helper.btm,prop:org.jboss.byteman.task3.greetingsfile=task3.greetings,sys:$BYTEMAN_WORKSHOP/task3/helper/target/byteman-workshop-task3-helper-1.0.0-SNAPSHOT.jar -cp target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar:. org.jboss.btm.workshop.Task3Main hello yay`
