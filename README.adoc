@@ -7,6 +7,8 @@ The repository contains link:./slides/slides.adoc[slides for the presentation]
 and then directories for individual tasks that the workshop consists
 from{nbsp}(link:./task1[1],{nbsp}link:./task2[2],{nbsp}link:./task3[3],{nbsp}link:./task4[4],{nbsp}link:./task5[5]).
 
+:toc: right
+
 == Prerequisites
 
 What you will need to have on your machine to get running particular tasks
@@ -17,11 +19,11 @@ What you will need to have on your machine to get running particular tasks
 * Byteman programmer's Guide (http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html)
 * IDE (Eclipse, IntelliJ IDEA, ...) will be helpful
 
-=== Starting the workshop and install instructions
+== Starting the workshop and install instructions
 
-==== Linux (Fedora 26)
+=== Linux (Fedora 26)
 
-===== Get prerequisites (using script)
+==== Get prerequisites (using script)
 
 You can use script `setup.sh` to download binaries from the net for you and
 settings the expected variables expected to be set in console for task completion.
@@ -30,9 +32,9 @@ settings the expected variables expected to be set in console for task completio
 . `cd byteman-workshop`
 . `source setup.sh` and follow the printed instructions
 
-===== Get prerequisites (manual steps)
+==== Get prerequisites (manual steps)
 
-====== Get workshop
+===== Get the workshop sources
 
 . clone repository of this workshop `git clone https://github.com/ochaloup/byteman-workshop.git`
 . `export BYTEMAN_WORKSHOP="$PWD/byteman-workshop"`
@@ -71,7 +73,7 @@ NOTE: now you can find the http://downloads.jboss.org/byteman/4.0.0/byteman-prog
 at `$BYTEMAN_WORKSHOP/libs/byteman-download-4.0.0/docs/byteman-programmers-guide.pdf`
 or published at http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html
 
-==== Windows, MacOS, ...
+=== Windows, MacOS, ...
 
 I'm sorry there is no precise instructions right now,
 see instructions for the Linux and adjust it for your purpose.
