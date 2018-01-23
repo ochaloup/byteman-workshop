@@ -1,0 +1,16 @@
+RULE change message when it's greeting
+INTERFACE Task3Processor
+METHOD process
+AT ENTRY
+IF $1.contains("ahoj")
+DO
+  $1 = "Franta"
+ENDRULE
+
+RULE do not return abstract stuff
+CLASS Task3AbstractProcessor
+METHOD process
+IF $1.contains("ahoj")
+DO
+  RETURN ""
+ENDRULE

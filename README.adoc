@@ -42,9 +42,8 @@ WARNING: steps referred through the workshop instructions are relative
     .. `export PATH="$JAVA_HOME/bin:$PATH"`
 . installing Maven
   * _option 1_: `dnf install maven`
-  * _option 2_:
-    .. download Maven archive to `$BYTEMAN_WORKSHOP/libs`
-       (`wget http://www-eu.apache.org/dist/maven/maven-3/3.5.2/binaries/apache-maven-3.5.2-bin.zip -O $BYTEMAN_WORKSHOP/libs/maven352.zip`)
+  * _option 2_: download Maven archive to `$BYTEMAN_WORKSHOP/libs`
+    .. `wget http://www-eu.apache.org/dist/maven/maven-3/3.5.2/binaries/apache-maven-3.5.2-bin.zip -O $BYTEMAN_WORKSHOP/libs/maven352.zip`
     .. `unzip -d "$BYTEMAN_WORKSHOP/libs" "$BYTEMAN_WORKSHOP/libs/maven352.zip"`
     .. `export MAVEN_HOME="$BYTEMAN_WORKSHOP/libs/apache-maven-3.5.2"`
     .. `export PATH="$MAVEN_HOME/bin:$PATH"`
