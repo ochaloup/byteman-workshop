@@ -6,9 +6,9 @@
 * <<part2>>: to know how to see debug info from Byteman workload
 * <<part3>>: to know how to inject new behaviour to `java.lang` classes
 
-=== Restrictions
+=== Rules
 
-Do not change the *java* code!
+IMPORTANT: Do not change the *java* code!
 
 Imagine you need to change the program behaviour but you can't change the sources.
 Your expected solution is changing rules in the Byteman script.
@@ -16,8 +16,7 @@ Your expected solution is changing rules in the Byteman script.
 [[task2-setup]]
 == Setup
 
-. see how to setup your environment at link:../README.adoc[prerequisites]
-.. check Byteman jar exists under variable `$BYTEMAN_JAR`: `file "$BYTEMAN_JAR"`
+. setup your environment (link:../README.adoc[prerequisites])
 . go to the directory `$BYTEMAN_WORKSHOP/task2`: `cd "$BYTEMAN_WORKSHOP/task2"`
 . compile java sources: `mvn clean install`
 . check source code of `Task2HelloWorld.java` class

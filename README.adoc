@@ -14,13 +14,25 @@ What you will need to have on your machine to get running particular tasks
 * Java JDK 8 (http://www.oracle.com/technetwork/java/javase/downloads/)
 * Maven (https://maven.apache.org/download.cgi)
 * Byteman binaries (agent jar) (http://byteman.jboss.org/downloads.html)
-* Byteman programmer's Guide ()
+* Byteman programmer's Guide (http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html)
+* IDE (Eclipse, IntelliJ IDEA, ...) will be helpful
 
 === Starting the workshop and install instructions
 
 ==== Linux (Fedora 26)
 
-===== Get workshop
+===== Get prerequisites (using script)
+
+You can use script `setup.sh` to download binaries from the net for you and
+settings the expected variables expected to be set in console for task completion.
+
+. `git clone https://github.com/ochaloup/byteman-workshop.git`
+. `cd byteman-workshop`
+. `source setup.sh` and follow the printed instructions
+
+===== Get prerequisites (manual steps)
+
+====== Get workshop
 
 . clone repository of this workshop `git clone https://github.com/ochaloup/byteman-workshop.git`
 . `export BYTEMAN_WORKSHOP="$PWD/byteman-workshop"`
@@ -29,8 +41,6 @@ What you will need to have on your machine to get running particular tasks
 WARNING: steps referred through the workshop instructions are relative
          to the directory `$BYTEMAN_WORKSHOP/libs`. +
          The libraries could be placed at whatever directory which fits for you.
-
-===== Get prerequisites
 
 . installing java
   * _option 1_: `dnf install java java-devel`
@@ -63,7 +73,8 @@ or published at http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-gui
 
 ==== Windows, MacOS, ...
 
-*TODO:* ...
+I'm sorry there is no precise instructions right now,
+see instructions for the Linux and adjust it for your purpose.
 
-WARNING: Instruction for the installation and running the tasks were prepared
+NOTE: Instruction for the installation and running the tasks were prepared
 and tested only for Linux. Feel free to contribute here :-)

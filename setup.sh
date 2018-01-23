@@ -11,7 +11,8 @@ export BYTEMAN_WORKSHOP="$PWD"
 
 # JAVA
 if [ ! -d "$BYTEMAN_WORKSHOP/libs/jdk-8u161-linux-x64.tar.gz" ]; then
-  [ ! -f "$BYTEMAN_WORKSHOP/libs/jdk-8u161-linux-x64.tar.gz" ] && echo "Download the jdk8u161 from https://www.java.com/en/download/linux_manual.jsp" && return
+  [ ! -f "$BYTEMAN_WORKSHOP/libs/jdk-8u161-linux-x64.tar.gz" ] &&\
+    echo "Download the 'jdk8u161' from https://www.java.com/en/download/linux_manual.jsp and place it to '$BYTEMAN_WORKSHOP/libs'" && return
   tar -C "$BYTEMAN_WORKSHOP/libs" -xzf "$BYTEMAN_WORKSHOP/libs/jdk-8u161-linux-x64.tar.gz"
 fi
 
@@ -44,4 +45,3 @@ echo 'Checking the outcome of the script:'
 
 mvn -version
 file "$BYTEMAN_JAR"
-
