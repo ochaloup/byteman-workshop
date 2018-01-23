@@ -10,10 +10,10 @@ export BYTEMAN_WORKSHOP="$PWD"
 
 
 # JAVA
-if [ ! -d "$BYTEMAN_WORKSHOP/libs/jdk-8u161-linux-x64.tar.gz" ]; then
-  [ ! -f "$BYTEMAN_WORKSHOP/libs/jdk-8u161-linux-x64.tar.gz" ] &&\
-    echo "Download the 'jdk8u161' from https://www.java.com/en/download/linux_manual.jsp and place it to '$BYTEMAN_WORKSHOP/libs'" && return
-  tar -C "$BYTEMAN_WORKSHOP/libs" -xzf "$BYTEMAN_WORKSHOP/libs/jdk-8u161-linux-x64.tar.gz"
+if [ ! -d "$BYTEMAN_WORKSHOP"/libs/jdk-*.tar.gz ]; then
+  [ ! -f "$BYTEMAN_WORKSHOP"/libs/jdk-*.tar.gz ] &&\
+    echo "Download the 'jdk8u161' from http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html and place it to '$BYTEMAN_WORKSHOP/libs'" && return
+  tar -C "$BYTEMAN_WORKSHOP/libs" -xzf "$BYTEMAN_WORKSHOP"/libs/jdk-*.tar.gz
 fi
 
 export JAVA_HOME="$BYTEMAN_WORKSHOP/libs/jdk1.8.0_161"

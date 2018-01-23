@@ -278,6 +278,9 @@ java -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm,sys:helper.ja
  * maven byteman plugin: https://developer.jboss.org/thread/18884
  * byteman eclipse plugin: https://developer.jboss.org/message/949377#949377
  * method arguments with Byteman: https://stackoverflow.com/questions/22558924/modifying-method-arguments-using-byteman
+ * BMUnit: https://developer.jboss.org/wiki/BMUnitUsingBytemanWithJUnitOrTestNGFromMavenAndAnt
+ * Maven check plugin: https://github.com/bytemanproject/byteman/tree/master/contrib/rulecheck-maven-plugin
+ * Arquillian Byteman extension: https://github.com/arquillian/arquillian-extension-byteman
 
 == !
 
