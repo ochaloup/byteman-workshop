@@ -52,6 +52,17 @@ image::byteman-icon.png[role="noborder", ,height="50"]
 [NOTE.speaker]
 --
 * Byteman works by modifying the bytecode of your application at runtime.
+* Byteman allows you to insert extra Java code into your application,
+  either as it is loaded during JVM startup or even after it has already started running.
+* Byteman works by modifying the bytecode of your application classes at runtime.
+  Since it only needs access to bytecode this means it can modify library code
+  whose source is either unavailable or unable to be recompiled.
+* Byteman uses a simple rule based scripting language (DSL)
+** Byteman rules hook up some code execution of you app and triggers some special
+   actions defined by byteman rule or with additional java helper class
+* Byteman inserts "a trigger" at places defined by the rule, from that place
+  is thrown byteman specific exception later on. Such exception is handled by Byteman engine.
+* in the background Byteman uses ASM library to work with the bytecode
 
 * Byteman history: http://bytemanblog.blogspot.cz/2009/10/monitoring-your-jvm-using-byteman-111.html
 
@@ -252,10 +263,21 @@ java -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm,sys:helper.ja
 
  * Byteman doc: http://byteman.jboss.org/documentation
  ** https://developer.jboss.org/wiki/ABytemanTutorial
+ ** https://developer.jboss.org/wiki/FaultInjectionTestingWithByteman
  * http://www.mastertheboss.com/jboss-frameworks/byteman/introduction-to-byteman
  * http://blog.eisele.net/2015/02/byteman-swiss-army-knife-for-byte-code.html
  * http://www.c2b2.co.uk/middleware-blog/using-custom-helpers-with-byteman.php
  * Java agent:  https://zeroturnaround.com/rebellabs/how-to-inspect-classes-in-your-jvm
+
+== References #2
+
+ * tracing threads: https://developer.jboss.org/wiki/TrackingThreadsInJBossAS7
+ * monitoring WildFly logs: https://github.com/RadekKoubsky/byteman-wildfly-log
+ * usage of link, unlink: https://developer.jboss.org/thread/271421
+ * WildFly IMPORT: http://bytemanblog.blogspot.cz/2015/11/byteman-303-release-trials-module.html
+ * maven byteman plugin: https://developer.jboss.org/thread/18884
+ * byteman eclipse plugin: https://developer.jboss.org/message/949377#949377
+ * method arguments with Byteman: https://stackoverflow.com/questions/22558924/modifying-method-arguments-using-byteman
 
 == !
 

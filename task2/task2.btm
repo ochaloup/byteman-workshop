@@ -1,28 +1,20 @@
-RULE Change message
-CLASS Task1HelloWorld
-METHOD main
-AFTER WRITE $message
-IF TRUE
-DO
-  $message = "Hello Byteman!"
-ENDRULE
-
-# part 2
-RULE change message waiting
-CLASS Task1HelloWorldWaiting
-METHOD write
+RULE message handling
+CLASS java.io.PrintStream
+METHOD println(java.lang.String)
+# TODO: AT ENTER
 AT ENTRY
 IF TRUE
 DO
-  $1 = "Hello Byteman!"
+  $1 = "Hello Byteman! : Task2"
 ENDRULE
 
-# part 3
-RULE show byteman is loaded
-CLASS Main
+# TODO: message handling
+RULE print info message
+CLASS Task2HelloWorld
 METHOD main
-AT ENTRY
+AT INVOKE PrintStream.println
 IF TRUE
 DO
-  System.out.println("I'm Byteman and I'm here!");
+  # TODO: System.out.println("Parameter one is: " + $@[1])
+  System.out.print("Parameter one is: " + $@[1] + "\n")
 ENDRULE

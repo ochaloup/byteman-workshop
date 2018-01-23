@@ -81,7 +81,7 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#installi
 
 
 [[part3]]
-== Part3: running with WildFly
+== Part3: running with WildFly _(Optional)_
 
 === Task
 

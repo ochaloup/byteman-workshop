@@ -1,0 +1,11 @@
+RULE changing string
+CLASS java.lang.String
+METHOD <init>(String)
+IF TRUE
+DO
+  # not triggered recursively if there is called String constructor here
+  setTriggering(false);
+  # will be shown when -Dorg.jboss.byteman.debug is used
+  debug("param " + new String($1));
+  $1 = "<byteman trojan> : " + $1
+ENDRULE

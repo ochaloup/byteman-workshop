@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
  * <p>
  * Simple class running infinite cycle until you insert <code>quit</code>
  * or <code>exit</code>.<br>
- * On different input it prints: <code>Hellow world!<code>.
+ * On different input it prints: <code>Hello world!<code>.
  * </p>
  * <pre>
  * java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorldWaiting
