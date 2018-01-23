@@ -27,7 +27,7 @@
 * With use of the Byteman script at `$BYTEMAN_WORKSHOP/task1/task1.btm` get printed
   `Hello Byteman!` instead
 
-=== Reference
+=== References
 
 see Byteman programmer's guide section section
 http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#configuring-a-java-agent[Configuring a java agent]
@@ -35,10 +35,10 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#configur
 === Solution
 
 . when the sources are compiled (<<task1-setup>>) then run the java program at your console
-  `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
+  ** `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
 . attach the Byteman java agent to the starting java program and provide the Byteman script
   with rule changing the program behaviour
-  `java -javaagent:$BYTEMAN_JAR=script:./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
+  ** `java -javaagent:$BYTEMAN_JAR=script:./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
 
 [[part2]]
 == Part2: using Byteman scripts
@@ -51,7 +51,7 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#configur
 * Install Byteman java agent to the running java process (hint: `bminstall.(sh|bat)`)
 * Show and install Byteman rules (a script) to change the program behaviour  (hint: `bmsubmit.(sh|bat)`)
 
-=== Reference
+=== References
 
 see Byteman programmer's guide section section
 http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#installing-byteman-in-a-running-jvm-using-script-bminstall[Installing Byteman in a Running JVM using Script bminstall]
@@ -59,15 +59,15 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#installi
 === Solution
 
 . when the sources are compiled (<<task1-setup>>) then run the java program at your console
-  `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorldWaiting`
+  ** `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorldWaiting`
 .. hit enter to see message `Hellow world!`
 . you will need to have configured environmental variable `$JAVA_HOME` and `$BYTEMAN_WORKSHOP`
 . open new console window where you define `$BYTEMAN_HOME` (see link:../README.adoc[prerequisites], `export BYTEMAN_HOME="$BYTEMAN_WORKSHOP/libs/byteman-download-4.0.0"`)
   .. `$BYTEMAN_HOME/bin/bmsubmit.sh` - you can experience `ConnectionException`, see whole stacktrace: <<bmsubmit1>>
   .. you need to find out java process id (`pid`): `jps | grep Task1`
   .. now you will install Byteman agent to the locally running java process with command
-     `$BYTEMAN_HOME/bin/bminstall.sh <pid>`
-    * `bminstall.sh` installs the Byteman java agent to the defined `<pid>` where
+    ** `$BYTEMAN_HOME/bin/bminstall.sh <pid>`
+    ** `bminstall.sh` installs the Byteman java agent to the defined `<pid>` where
       java agent opens port and receives commands. The default the agent listens to the socket `9091`. +
       If you run the `bmsubmit.sh` in the next step it tries to connect to the default `port` at `localhost`. +
       If you need to change the port check `$BYTEMAN_HOME/bin/bminstall.sh -h` and `$BYTEMAN_HOME/bin/bmsubmit.sh -h`
@@ -94,7 +94,7 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#installi
 . `unzip -d "$BYTEMAN_WORKSHOP/libs" "$BYTEMAN_WORKSHOP/libs/wildfly11.zip"`
 . `export JBOSS_HOME="$BYTEMAN_WORKSHOP/libs/wildfly-11.0.0.Final"`
 
-=== Reference
+=== References
 
 You can see some details at Byteman tutorial
 https://developer.jboss.org/wiki/ABytemanTutorial#how_do_i_run_jboss_as_with_byteman
@@ -103,7 +103,8 @@ https://developer.jboss.org/wiki/ABytemanTutorial#how_do_i_run_jboss_as_with_byt
 
 . open the `$JBOSS_HOME/bin/standalone.conf` file in text editor
 .. add `JAVA_OPTS` option at the end of the `.conf` file to contain javaagent to be loaded
-   with reference to the script `JAVA_OPTS="$JAVA_OPTS -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task1/task1.btm"`
+   with reference to the scrip
+   ** `JAVA_OPTS="$JAVA_OPTS -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task1/task1.btm"`
 .. check that value of `jboss.modules.system.pkgs` is setup with `org.jboss.byteman`,
    which is then used at property `jboss.modules.system.pkgs`
 . run the WildFly `$JBOSS_HOME/bin/standalone.sh`you can see at the start-up message in the log:

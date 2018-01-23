@@ -33,7 +33,7 @@ Your expected solution is changing rules in the Byteman script.
 * Use Byteman tooling to see what are errors in the script `task2.btm` (hint: `bmcheck.(sh|bat)`)
 * Correct the `task2.btm` for getting *no* syntax errors when running `bmcheck`
 
-=== Reference
+=== References
 
 see Byteman programmer's guide section section
 http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#checking-rules-offline-using-script-bmcheck[Checking Rules Offline Using Script bmcheck]
@@ -42,23 +42,23 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#checking
 
 . `cd "$BYTEMAN_WORKSHOP/task2"`
 . run the tool `bmcheck` to verify errors in the Byteman script
-  `$BYTEMAN_HOME/bin/bmcheck.sh "$BYTEMAN_WORKSHOP/task2/task2.btm"`
-  .. you will get information that class `Task2HelloWorld` which is part of the Byteman script
+  ** `$BYTEMAN_HOME/bin/bmcheck.sh "$BYTEMAN_WORKSHOP/task2/task2.btm"`
+  ** you will get information that class `Task2HelloWorld` which is part of the Byteman script
      is not possible to load <<could-not-load-class>>.
      That means `bmcheck` does not see that class on the classpath which is needed for further verification.
   .. check content of the Byteman script `$BYTEMAN_WORKSHOP/task2/task2.btm`
 . run the tool `bmcheck` when providing `Task2HelloWorld` to its classpath
-  `$BYTEMAN_HOME/bin/bmcheck.sh -cp target/byteman-workshop-task2-1.0.0-SNAPSHOT.jar ./task2.btm`
-.. we provided the jar file with the `Task2HelloWorld` at the classpath but we still can see
+  ** `$BYTEMAN_HOME/bin/bmcheck.sh -cp target/byteman-workshop-task2-1.0.0-SNAPSHOT.jar ./task2.btm`
+  ** we provided the jar file with the `Task2HelloWorld` at the classpath but we still can see
    error of not  possible to load the class <<could-not-load-class>>.
    The reason is that the `Task2HelloWorld` is not defined in Byteman rule at `task2.btm`
    with fully qualified name. You can change the rule to add `org.jboss.btm.workshop`
    package before the class name. Or you can use `bmcheck` command line option.
 . run the tool `bmcheck` with `Task2HelloWorld` at classpath and defining default
   package name where to search for not found classes
-  `$BYTEMAN_HOME/bin/bmcheck.sh -p org.jboss.btm.workshop -cp target/byteman-workshop-task2-1.0.0-SNAPSHOT.jar ./task2.btm`
-.. you will see syntax error `org.jboss.byteman.rule.exception.ParseException` <<rule-syntax-error>>
-.. there is wrong syntax in the first rule. Byteman DSL does not understand `AT ENTER`.
+  ** `$BYTEMAN_HOME/bin/bmcheck.sh -p org.jboss.btm.workshop -cp target/byteman-workshop-task2-1.0.0-SNAPSHOT.jar ./task2.btm`
+  ** you will see syntax error `org.jboss.byteman.rule.exception.ParseException` <<rule-syntax-error>>
+  ** there is wrong syntax in the first rule. Byteman DSL does not understand `AT ENTER`.
    Change the line (line numer 4) to be `AT ENTRY`.
 . run the `bmcheck` and see no errors now (`TestScript: no errors`)
 
@@ -124,7 +124,7 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#checking
 . run with Byteman jar loaded by boot class loader
   ** `java -javaagent:$BYTEMAN_JAR=script:./task2.string.btm,boot:$BYTEMAN_JAR -cp target/byteman-workshop-task2-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.transform.all org.jboss.btm.workshop.Task2HelloWorld`
 . you can run with debug enabled now too
-** `java -javaagent:$BYTEMAN_JAR=script:./task2.string.btm,boot:$BYTEMAN_JAR -cp target/byteman-workshop-task2-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.transform.all -Dorg.jboss.byteman.debug org.jboss.btm.workshop.Task2HelloWorld`
+  ** `java -javaagent:$BYTEMAN_JAR=script:./task2.string.btm,boot:$BYTEMAN_JAR -cp target/byteman-workshop-task2-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.transform.all -Dorg.jboss.byteman.debug org.jboss.btm.workshop.Task2HelloWorld`
 
 
 == Notes

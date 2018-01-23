@@ -17,19 +17,19 @@ import java.io.InputStreamReader;
 public class Task1HelloWorldWaiting {
 
     public static void main( String[] args ) {
-    	try(BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-    		String readValue = "";
-    		while(!readValue.matches("exit|q|quit")) {
-    			Task1HelloWorldWaiting.write("Hello world!");
-    			System.out.print("(type any or 'quit') >> ");
-    			readValue = br.readLine();
-    		}
-    	} catch (IOException ioe) {
-    		ioe.printStackTrace();
-    	}
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+            String readValue = "";
+            while(!readValue.matches("exit|q|quit")) {
+                Task1HelloWorldWaiting.write("Hello world!");
+                System.out.print("(type any or 'quit') >> ");
+                readValue = br.readLine();
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
-    
+
     private static void write(String message) {
-    	System.out.println( message );
+        System.out.println( message );
     }
 }
