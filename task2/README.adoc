@@ -132,6 +132,25 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#checking
 NOTE: you can use Byteman argument `org.jboss.byteman.dump.generated.classes`
       to get dumped bytecode of classes changed by Byteman rules
 
+[WARNING]
+====
+if you create a rule which has some syntax error it's not true that you get error
+during program execution. You will see errors when you switch on the `debug`
+or when you use the `bmcheck` tool.
+
+By interest you can try to create a rule where in the `DO` clause you define
+two actions not delimited with comma (`,`) or semicolon (`;`)
+
+```
+DO
+  System.out.print("Hello ")
+  System.out.println("world!")
+```
+
+when you run it fails but there will be errors shown only when you run with debug
+otherwise syntax error is hidden by Byteman, see error <<do-action-parse-error>>.
+====
+
 === Errors
 
 [[could-not-load-class]]
@@ -240,4 +259,38 @@ $ java -javaagent:$BYTEMAN_JAR=script:./task2.string.btm -cp target/byteman-work
 Exception in thread "main" java.lang.NoClassDefFoundError: org/jboss/byteman/rule/exception/EarlyReturnException
     at java.lang.String.<init>(String.java:152)
     at org.jboss.btm.workshop.Task2HelloWorld.main(Task2HelloWorld.java:14)
+```
+
+[[do-action-parse-error]]
+```
+org.jboss.byteman.agent.Transformer : error parsing rule print info message
+org.jboss.byteman.rule.exception.ParseException: rule print info message
+./task2.btm line 19 : invalid expression
+./task2.btm : unable to recover from previous errors
+org.jboss.byteman.rule.exception.ParseException: rule print info message
+./task2.btm line 19 : invalid expression
+./task2.btm : unable to recover from previous errors
+    at org.jboss.byteman.rule.Rule.<init>(Rule.java:229)
+    at org.jboss.byteman.rule.Rule.create(Rule.java:381)
+    at org.jboss.byteman.agent.TransformContext.parseRule(TransformContext.java:178)
+    at org.jboss.byteman.agent.TransformContext.transform(TransformContext.java:88)
+    at org.jboss.byteman.agent.Transformer.transform(Transformer.java:745)
+    at org.jboss.byteman.agent.Transformer.tryTransform(Transformer.java:812)
+    at org.jboss.byteman.agent.Transformer.tryTransform(Transformer.java:784)
+    at org.jboss.byteman.agent.Transformer.transform(Transformer.java:262)
+    at sun.instrument.TransformerManager.transform(TransformerManager.java:188)
+    at sun.instrument.InstrumentationImpl.transform(InstrumentationImpl.java:428)
+    at java.lang.ClassLoader.defineClass1(Native Method)
+    at java.lang.ClassLoader.defineClass(ClassLoader.java:763)
+    at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:142)
+    at java.net.URLClassLoader.defineClass(URLClassLoader.java:467)
+    at java.net.URLClassLoader.access$100(URLClassLoader.java:73)
+    at java.net.URLClassLoader$1.run(URLClassLoader.java:368)
+    at java.net.URLClassLoader$1.run(URLClassLoader.java:362)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at java.net.URLClassLoader.findClass(URLClassLoader.java:361)
+    at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+    at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:338)
+    at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+    at sun.launcher.LauncherHelper.checkAndLoadMain(LauncherHelper.java:495)
 ```
