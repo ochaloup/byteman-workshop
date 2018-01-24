@@ -29,7 +29,7 @@ image::battery-full.png[canvas, size=contain]
 * handling Byteman issues
 * helper classes
 * thread activity tracing
-* testing: BMUnit and Dtest libraries
+* testing: BMUnit and dtest libraries
 
 == What's not included
 

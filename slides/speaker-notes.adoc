@@ -7,3 +7,6 @@
 * code of `crash recovery testsuite` showing during motivation slide
 * opened source codes of `org.jboss.byteman.agent.Main` to show how `premain` method looks like
 * opened source codes of `org.jboss.byteman.rule.helper.Helper` to show the utility methods
+* opened Byteman programmer's guide
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.pdf
