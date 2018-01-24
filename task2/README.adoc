@@ -6,12 +6,19 @@
 * <<part2>>: to know how to see debug info from Byteman workload
 * <<part3>>: to know how to inject new behaviour to `java.lang` classes
 
-=== Rules
+IMPORTANT: Expecting you won't change the *java* code!
 
-IMPORTANT: Do not change the *java* code!
+== Source code overview
 
-Imagine you need to change the program behaviour but you can't change the sources.
-Your expected solution is changing rules in the Byteman script.
+The directory `task3` contains two maven modules
+
+* `greetings` containing code of the program we will work with. There is hierarchy
+  of greeting instances taken from interface `Task3GreetingsProcessor`.
+  Then there is main class taken arguments from command line and pass them to the
+  processors which then returns an text output.
+* `helper` is module containing maven helper class which functionality is for more
+  complicated code which is not permitted under Byteman action script DSL
+
 
 [[task2-setup]]
 == Setup

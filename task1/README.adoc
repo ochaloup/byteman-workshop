@@ -6,6 +6,14 @@
 * <<part2>>: to know to use Byteman scripts to change rules to be executed
 * <<part3>>: to setup Byteman for running with WildFly
 
+== Source code overview
+
+The directory `task1` contains simple java program started with two classes when run
+
+* `Task1HelloWorld` prints just hello world message
+* `Task1HelloWorldWaiting` prints hellow world message but waits for key input to write
+  the same message again
+
 [[task1-setup]]
 == Setup
 
@@ -32,10 +40,13 @@
 see Byteman programmer's guide section section
 http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#configuring-a-java-agent[Configuring a java agent]
 
+=== Hints
+
+* after source compilation (<<task1-setup>>) you can run java program at your console
+** `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
+
 === Solution
 
-. when the sources are compiled (<<task1-setup>>) then run the java program at your console
-  ** `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
 . attach the Byteman java agent to the starting java program and provide the Byteman script
   with rule changing the program behaviour
   ** `java -javaagent:$BYTEMAN_JAR=script:./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
@@ -48,6 +59,9 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#configur
 * Run the java class `Task1HelloWorldWaiting` for you getting printed message `Hello world!`
   when you type any key
 * Check if the running java process has installed Byteman java agent
+
+=== Hints
+
 * Install Byteman java agent to the running java process (hint: `bminstall.(sh|bat)`)
 * Show and install Byteman rules (a script) to change the program behaviour  (hint: `bmsubmit.(sh|bat)`)
 
