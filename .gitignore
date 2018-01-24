@@ -12,4 +12,5 @@ libs/
 # temporary files
 *.orig.png
 *.orig.jpg
+thread-system-exit*.txt
 

@@ -64,6 +64,15 @@ IF TRUE
 DO traceCreate($0, 5)
 ENDRULE
 
+RULE ThreadMonitor trace create callable
+INTERFACE ^java.util.concurrent.Callable
+METHOD <init>
+HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
+AT EXIT
+IF TRUE
+DO traceCreate(Thread.currentThread(), 5)
+ENDRULE
+
 ########################################################################
 #
 # Rule to trace thread start
@@ -130,5 +139,5 @@ METHOD main
 HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
 AT ENTRY
 IF TRUE
-do writeAllEventsToFile("/tmp/thread-system-exit.txt")
+do writeAllEventsToFile("thread-system-exit.txt")
 ENDRULE
