@@ -56,30 +56,12 @@
 #
 
 RULE ThreadMonitor trace create
-CLASS ^java.lang.Thread
+CLASS java.lang.Thread
 METHOD <init>
 HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
 AT EXIT
 IF TRUE
 DO traceCreate($0, 5)
-ENDRULE
-
-RULE ThreadMonitor trace create runnable
-INTERFACE ^java.lang.Runnable
-METHOD <init>
-HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
-AT EXIT
-IF TRUE
-DO traceCreate(Thread.currentThread(), 5)
-ENDRULE
-
-RULE ThreadMonitor trace create callable
-INTERFACE ^java.lang.Callable
-METHOD <init>
-HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
-AT EXIT
-IF TRUE
-DO traceCreate(Thread.currentThread(), 5)
 ENDRULE
 
 ########################################################################
@@ -110,24 +92,6 @@ IF TRUE
 DO traceExit($0)
 ENDRULE
 
-RULE ThreadMonitor trace exit runnable
-CLASS ^java.lang.Runnable
-METHOD finalize
-HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
-AT ENTRY
-IF TRUE
-DO traceExit($0)
-ENDRULE
-
-RULE ThreadMonitor trace exit callable
-CLASS ^java.lang.Callable
-METHOD finalize
-HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
-AT ENTRY
-IF TRUE
-DO traceExit($0)
-ENDRULE
-
 ########################################################################
 #
 # Interface rule to trace calls to implementations of Runnable.run
@@ -146,25 +110,25 @@ IF TRUE
 DO traceRun($0)
 ENDRULE
 
-RULE ThreadMonitor trace Callable call
-INTERFACE ^java.lang.Callable
-METHOD call()
-HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
-AT ENTRY
-IF TRUE
-DO traceRun($0)
-ENDRULE
-
-########################################################################
-#
-# A rule to trigger a flush of the events
-#
-
-RULE write ThreadHistoryMonitorHelper to tmp file
-CLASS Task5Main
+# A rule to trigger the registration of the ThreadHistoryMonitorHelper mbean.
+# This has to be done after the installation of the platform mbean to avoid
+# conflicts with installing the j.u.l.LogManager.
+RULE Register ThreadHistoryMonitorHelper mbean
+CLASS org.jboss.modules.Main
 METHOD main
 HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
 AT EXIT
+IF TRUE
+DO registerHelperMBean("org.jboss.byteman:helper=ThreadHistoryMonitorHelper")
+ENDRULE
+
+
+# A rule to trigger a flush of the events on System.exit
+RULE write ThreadHistoryMonitorHelper data to file
+CLASS Task5Main
+METHOD main
+HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
+AT ENTRY
 IF TRUE
 do writeAllEventsToFile("/tmp/thread-system-exit.txt")
 ENDRULE
