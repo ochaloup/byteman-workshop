@@ -1,0 +1,81 @@
+
+# --- test notAllowingSubtractThread
+RULE not allowing subtract thread
+INTERFACE Callable
+METHOD call
+AT ENTRY
+IF callerEquals("SubtractorThread.call", true)
+DO
+  RETURN 0
+ENDRULE
+
+
+# --- test threadMethodNotExecuted
+RULE not allowing subtract thread
+INTERFACE Callable
+METHOD call
+AT ENTRY
+IF callerEquals("Thread.run", true, 99)
+DO
+  RETURN 0
+ENDRULE
+    
+
+# --- test waitForSignal
+RULE wait for reader
+INTERFACE Callable
+METHOD call
+AT ENTRY
+IF callerEquals("SubtractorThread.call", true) || callerEquals("AdderThread.call", true)
+DO
+  waitFor("wasRead")
+ENDRULE
+
+RULE signal was read
+CLASS ReaderThread
+METHOD call
+AFTER INVOKE java.util.concurrent.atomic.AtomicInteger.get
+IF callerEquals("SubtractorThread.call", true) || callerEquals("AdderThread.call", true)
+DO
+  signalWake("wasRead")
+ENDRULE
+
+
+# --- test allowProcessThreeThreads
+RULE thread counter creation
+CLASS AdderThread
+METHOD <init>
+IF !flagged("counterCreated")
+DO
+  debug(">> creating counter"), flag("counterCreated"), createCounter("threadCounter")
+ENDRULE
+
+RULE thread countdown
+CLASS AdderThread
+METHOD call
+IF incrementCounter("threadCounter") > 3
+DO
+  debug(">> incrementing counter"), RETURN 0
+ENDRULE
+
+
+# --- test recordSubtractEvents
+RULE track subtractor events
+CLASS SubtractorThread
+METHOD call
+AFTER INVOKE getAndAdd
+BIND subtractorValue:int = $this.substractValue,
+     counter:int = incrementCounter("linkSubtractorCounter")
+DO
+  link("subtractorMap", counter, subtractorValue)
+ENDRULE
+
+RULE change the counter return value
+CLASS AtomicInteger
+HELPER org.jboss.btm.workshop.TestHelper
+METHOD get
+AT EXIT
+IF callerEquals("BMUnitTest.recordSubtractEvents", true)
+DO
+  RETURN sumList(linkValues("subtractorMap"))
+ENDRULE

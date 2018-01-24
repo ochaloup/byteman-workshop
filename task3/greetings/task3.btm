@@ -1,11 +1,11 @@
-# RULE change message when it's greeting
-# INTERFACE ^Task3GreetingsProcessor
-# METHOD process
-# AT ENTRY
-# IF $1.contains("hello") || $1.contains("hi")
-# DO
-#   $1 = "god bless you"
-# ENDRULE
+RULE change message when it's greeting
+INTERFACE ^Task3GreetingsProcessor
+METHOD process
+AT ENTRY
+IF $1.contains("hello") || $1.contains("hi")
+DO
+  $1 = "god bless you"
+ENDRULE
 
 RULE do not involve abstract parent return #1
 CLASS Task3AbstractGreetingsProcessor

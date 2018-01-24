@@ -10,6 +10,7 @@ import java.util.concurrent.Future;
 
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
+import org.jboss.byteman.contrib.bmunit.BMScript;
 import org.jboss.byteman.contrib.bmunit.BMUnitConfig;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Before;
@@ -57,14 +58,8 @@ public class BMUnitTest {
     }
     
     @Test
-    @BMRule(
-        name = "not allowing thread run",
-        targetClass = "Callable",
-        isInterface = true,
-        targetMethod = "call",
-        targetLocation = "ENTRY",
-        condition = "callerEquals(\"Thread.run\", true, 99)",
-        action = "RETURN 0"
+    @BMScript(
+        value = "threadMethodNotExecuted.btm"
     )
     public void threadMethodNotExecuted() {
         Set<Future<?>> futures = new HashSet<>();
