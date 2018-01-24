@@ -7,7 +7,7 @@
 :imagesdir: img
 :backend: revealjs
 
-
+// bundle exec asciidoctor-revealjs slides.adoc
 // doc at http://asciidoctor.org/docs/asciidoctor-revealjs
 // [%notitle]
 
@@ -19,6 +19,25 @@ image::byteman-wallpaper-shrink.jpg[canvas, size=cover]
 Ondra Chaloupka / ochaloup@redhat.com / https://twitter.com/_chalda[@_chalda]
 
 
+== Motivation
+
+* tracing your code during execution
+* changing behaviour of your code while no need to be re-compiled
+** redefining return codes of a method
+** synchronizes your threads
+* big helper for testing and reproducer creation
+** throwing an exception in arbitrary point
+** simulate OOM or JVM crash
+* ...
+
+[NOTE.speaker]
+--
+how Narayana code base uses that?
+
+* https://github.com/jbosstm/narayana/blob/master/ArjunaJTA/jta/tests/classes/com/hp/mwtests/ts/jta/commitmarkable/TestCommitMarkableResourceMBeansFailAfterPrepare.java#L41
+* https://github.com/jbosstm/narayana/blob/master/ArjunaJTA/jta/tests/byteman-scripts/commitMarkableResourceFailAfterPrepare.btm
+--
+
 == Agenda
 
 image::battery-full.png[canvas, size=contain]
@@ -28,8 +47,8 @@ image::battery-full.png[canvas, size=contain]
 * Byteman DSL
 * handling Byteman issues
 * helper classes
-* thread activity tracing
 * testing: BMUnit and dtest libraries
+* thread activity tracing
 
 == What's not included
 
@@ -69,33 +88,88 @@ image::byteman-icon.png[role="noborder", ,height="50"]
 * ASM example: https://www.beyondjava.net/blog/quick-guide-writing-byte-code-asm
 --
 
-== Motivation
+== Byteman DSL
 
-* tracing your code during execution
-* changing behaviour of your code while no need to re-compile
-** redefining return codes of a method
-** synchronizes your threads
-* big helper for testing and reproducer creation
-** throwing an exception in arbitrary point
-** simulate OOM or JVM crash
-* ...
-
-
-== Java agent
-
-* JVM "plugin" utilizing `Instrumentation` API
-* `-javaagent` executes `premain` before `main`
-* `org.jboss.byteman.agent.Main`
+[source,bash,role="stretch noborder"]
+----
+RULE <rule name>
+CLASS <class name>
+METHOD <method name>
+AT <location>
+BIND <bindings>
+IF <condition>
+DO <actions>
+ENDRULE
+----
 
 [NOTE.speaker]
 --
-* The bytecode modifications performed by Byteman are implemented using a Java agent program.
-  JVM class loaders provide agents with an opportunity to modify loaded bytecode just prior to compilation
+* simple text files with rule definition
+* unfortunatelly there is no automatic DSL checker
+  when the code is to be write
+* for checking syntax there is `bmcheck.sh` and maven plugin
+--
+
+== Java agent
+
+* JVM "plugin" (special .jar file) in use of `Instrumentation` API
+* the jar introduced to Java by command line parameter `-javaagent`
+* the agent makes execute its method `premain` before app `main`
+* Byteman intitialization class: https://github.com/bytemanproject/byteman/blob/master/agent/src/main/java/org/jboss/byteman/agent/Main.java#L48[org.jboss.byteman.agent.Main]
+
+[NOTE.speaker]
+--
+* special jar file which utilizes Instrumentation api
+*  JVM class loaders provide agents with an opportunity to modify loaded bytecode just prior to compilation
   (see package java.lang.Instrumentation for details of how Java agents work).
 * notice the `Instrumentation` parameter that we have access to in the premain method.
 * javaagent is a JVM plugin, a specially crafted .jar file, that utilizes the instrumentation api
   (https://zeroturnaround.com/rebellabs/how-to-inspect-classes-in-your-jvm/)
 --
+
+
+== Byteman agent setup
+
+* Byteman agent has to be specified at the start java program
+
+[source,bash,role="stretch noborder"]
+----
+# started byteman agent
+java -javaagent:./byteman.jar=script:./task1.btm -cp ... org.jboss.MainClass
+----
+
+*
+
+== Byteman agent setup #2
+
+* second way is attach agent to running java process by pid
+
+[source,bash,role="stretch noborder"]
+----
+# receive <pid>
+jps -l
+# to attach agent to the <pid>
+$BYTEMAN_HOME/bin/bminstall.sh <pid>
+----
+
+== Byteman shell script tooling
+
+* `bminstall` : attach agent to the <pid>
+* `bmsubmit` : pass Byteman rule, trying to connect to agent listening by default at port `9091`
+* `bmcheck` : verify syntax of `btm` script
+* `bmjava` : running java program when automatically adding `-javaagent` (simple wrapper)
+
+
+
+
+
+
+
+
+
+
+
+
 
 == Byteman DSL
 
@@ -110,13 +184,7 @@ DO <actions>
 ENDRULE
 ```
 
-[NOTE.speaker]
---
-. see example `part1/02_btmcheck`
-. open byteman documentation guide: http://byteman.jboss.org/docs.html
---
-
-== Byteman DSL: base
+== Byteman DSL: rules
 
 ```
 RULE <rule name>
