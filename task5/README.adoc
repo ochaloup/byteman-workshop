@@ -4,7 +4,7 @@
 
 * <<part1>>: overview of Byteman sample scripts and how they can help in tracing and searching bugs
 
-== Project overview
+== Source code overview
 
 The directory `task5` contains simple java program started with class `Task5Main`
 which contain main method to be started. +

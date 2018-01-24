@@ -30,6 +30,14 @@ public class BMUnitTest {
         Repository.COUNTER.set(0);
     }
 
+    /**
+     * Byteman rule should ensure that invocation of {@link SubtractorThread} wont' have
+     * any influence at the content of the Repository.COUNTER.<br>
+     * In other words expecting that when called it just returns without
+     * any change at the shared stated.<br>
+     * Thus we can be sure only the AdderThread is invoked
+     * and the counter will have value greater than 0.
+     */
     @Test
     @BMRule(
         name = "not allowing subtract thread",
@@ -56,11 +64,14 @@ public class BMUnitTest {
         assertThat(Repository.COUNTER.get()).isGreaterThan(0)
             .as("Byteman do not allow run any subtract there should be possitive value at the counter");
     }
-    
+
+    /**
+     * Byteman rule should ensures that {@link Callable} invocation
+     * will have not influence on the {@link Repository#COUNTER} value.<br>
+     * In other word the call <code>call</code> will return immediately.
+     */
     @Test
-    @BMScript(
-        value = "threadMethodNotExecuted.btm"
-    )
+    @BMScript("threadMethodNotExecuted.btm")
     public void threadMethodNotExecuted() {
         Set<Future<?>> futures = new HashSet<>();
         
@@ -73,7 +84,12 @@ public class BMUnitTest {
         assertThat(Repository.COUNTER.get()).isEqualTo(0)
             .as("Byteman do not allow run any Thread method, counter is at default value");
     }
-    
+
+    /**
+     * The Byteman rules should ensures that {@link ReaderThread} will be the
+     * first thread reaching the value of {@link Repository#COUNTER}.<br>
+     * When reader reads value the rest of the threads can be processed. 
+     */
     @Test
     @BMRules (rules = {
         @BMRule(
@@ -110,6 +126,11 @@ public class BMUnitTest {
             .as("Byteman made waiting the threads making changes for reader can see the default value.");
     }
 
+    /**
+     * Byteman rules should ensure that the {@link AdderThread} will be changing value of counter
+     * three times and other ivocations will be just immediatelly returned without
+     * changing value of the counter.
+     */
     @Test
     @BMRules (rules = {
             @BMRule(
@@ -141,6 +162,10 @@ public class BMUnitTest {
             .as("Byteman allow run only three threads others will throw exception but not adding counter value");
     }
 
+    /**
+     * Here is just rather showcase of using link map which is capable to store
+     * data and then they could be retrieved.  
+     */
     @Test
     @BMRules (rules = {
             @BMRule(

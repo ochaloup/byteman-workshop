@@ -15,6 +15,7 @@ import org.jboss.byteman.contrib.dtest.InstrumentedClass;
 import org.jboss.byteman.contrib.dtest.Instrumentor;
 import org.jboss.byteman.contrib.dtest.RuleConstructor;
 import org.jboss.byteman.rule.helper.Helper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,6 +40,17 @@ public class DTestTest {
         Repository.COUNTER.set(0);
     }
 
+    @After
+    public void cleanUp() throws Exception {
+        instrumentor.removeAllInstrumentation();
+    }
+
+    /**
+     * The same functionality as at {@link BMUnitTest#notAllowingSubtractThread()}
+     * but the rule should be created with {@link RuleConstructor}.<br>
+     * Then {@link Instrumentor#instrumentClass(Class)} could be used to check
+     * that the created instances of the {@link AdderThread} were 2. 
+     */
     @Test
     public void notAllowingSubtractThread() throws Exception {
         // dTest rule definition
