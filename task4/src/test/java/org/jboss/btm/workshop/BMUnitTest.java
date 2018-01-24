@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
 @BMUnitConfig(
+    enforce = true,
     debug = true,
     verbose = true
 )
@@ -143,6 +144,41 @@ public class BMUnitTest {
         
         assertThat(Repository.COUNTER.get()).isEqualTo(3)
             .as("Byteman allow run only three threads others will throw exception but not adding counter value");
+    }
+
+    @Test
+    @BMRules (rules = {
+            @BMRule(
+                    name = "track subtractor events",
+                    targetClass = "SubtractorThread",
+                    targetMethod = "call",
+                    targetLocation = "AFTER INVOKE getAndAdd",
+                    binding = "subtractorValue:int = $this.substractValue, counter:int = incrementCounter(\"linkSubtractorCounter\")",
+                    action = "link(\"subtractorMap\", counter, subtractorValue)"
+                    ),
+            @BMRule(
+                    name = "change the counter return value",
+                    targetClass = "AtomicInteger",
+                    helper = "org.jboss.btm.workshop.TestHelper",
+                    targetMethod = "get",
+                    targetLocation = "AT EXIT",
+                    condition = "callerEquals(\"BMUnitTest.recordSubtractEvents\", true)",
+                    action = "RETURN sumList(linkValues(\"subtractorMap\"))"
+                    )
+    })
+    public void recordSubtractEvents() throws Exception {
+        Set<Future<?>> futures = new HashSet<>();
+        
+        ExecutorService es = Executors.newCachedThreadPool();
+        for (int i = 1; i <= 3; i++) {
+            futures.add(es.submit(new AdderThread(3)));
+            futures.add(es.submit(new SubtractorThread(42)));
+        }
+        
+        TestUtils.waitToEnd(futures, es);
+
+        assertThat(Repository.COUNTER.get()).isEqualTo(3 * 42)
+            .as("Byteman changed counter get behaviour to get only subtractor values");
     }
     
 }
