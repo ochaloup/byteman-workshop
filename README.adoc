@@ -7,6 +7,9 @@ The repository contains link:./slides/slides.adoc[slides for the presentation]
 and then directories for individual tasks that the workshop consists
 from{nbsp}(link:./task1[1],{nbsp}link:./task2[2],{nbsp}link:./task3[3],{nbsp}link:./task4[4],{nbsp}link:./task5[5]).
 
+Up to that the folder link:./tricky_examples[tricky_examples] contains
+some (currently one) example of tricky writing stuff in Byteman.
+
 :toc: right
 
 == Prerequisites
