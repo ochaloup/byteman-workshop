@@ -12,13 +12,10 @@ public class AdderThread implements Callable<Integer> {
     private final int addValue;
 
     public AdderThread() {
+        super();
         this.addValue = new Random().nextInt(10) + 1;
     }
     
-    public AdderThread(int addValue) {
-        this.addValue = addValue;
-    }
-
     @Override
     public Integer call() throws Exception {
         int previousValue = Repository.COUNTER.getAndAdd(addValue);

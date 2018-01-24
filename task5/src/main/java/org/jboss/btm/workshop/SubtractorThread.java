@@ -14,10 +14,6 @@ public class SubtractorThread implements Callable<Integer> {
     public SubtractorThread() {
         this.substractValue = new Random().nextInt(10) + 1;
     }
-    
-    public SubtractorThread(int substractValue) {
-        this.substractValue = substractValue;
-    }
 
     @Override
     public Integer call() throws Exception {
