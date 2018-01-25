@@ -35,6 +35,8 @@ settings the expected variables expected to be set in console for task completio
 . `cd byteman-workshop`
 . `source setup.sh` and follow the printed instructions
 
+WARNING: tested with bash, could not work with others (e.g. csh makes troubles)
+
 ==== Get prerequisites (manual steps)
 
 ===== Get the workshop sources

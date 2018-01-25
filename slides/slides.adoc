@@ -193,6 +193,12 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#submitti
 
 image::byteman-icon.png[role="noborder", ,height="110"]
 
+[NOTE.speaker]
+--
+* two branches 'tasks' and 'master'
+* see section 'Hints'
+--
+
 == Byteman DSL: example
 
 ```
