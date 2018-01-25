@@ -118,7 +118,7 @@ HELPER org.jboss.MyBytemanHelper
 ...</code></pre></div></div>
 <div class="listingblock"><div class="content"><pre class="highlight"><code data-noescape>java -javaagent:byteman.jar=script:./file.btm,sys:myhelper.jar\
   -cp application.jar org.jboss.MainClass</code></pre></div></div></section>
-<section id="task_3"><h2>Task #3</h2><div class="imageblock noborder" style=""><img src="img/byteman-icon.png" alt="byteman icon" height="180"></div></section>
+<section id="task_3"><h2>Task #3</h2><div class="imageblock noborder" style=""><img src="img/byteman-icon.png" alt="byteman icon" height="220"></div></section>
 <section id="bmunit"><h2>BMUnit</h2><div class="ulist"><ul><li><p>a library helping to introduce rules for the tests</p></li><li><p>set of annotations</p></li><li><p>ensures loading the Byteman agent to the JVM</p></li><li><p>could be used with JUnit and TestNG</p></li></ul></div>
 <aside class="notes"><div class="paragraph"><p><a href="https://github.com/bytemanproject/byteman/tree/master/contrib/bmunit" class="bare">https://github.com/bytemanproject/byteman/tree/master/contrib/bmunit</a></p></div></aside></section>
 <section id="bmunit_maven_coordinates"><h2>BMUnit: maven coordinates</h2><div class="listingblock"><div class="content"><pre class="highlight"><code data-noescape>&lt;dependency&gt;
@@ -133,7 +133,7 @@ HELPER org.jboss.MyBytemanHelper
 public class BMUnitTest {
 
   @Test
-  @BMRule( name="trace thread exit",
+  @BMRule( name="disallow reading from file",
            targetClass = "FileInputStream",
            targetMethod = "&lt;init&gt;(String)",
            condition="$1.contains(\"andrew\")",
@@ -145,8 +145,36 @@ public class BMUnitTest {
   @BMScript("file.btm")
   public void test2() {
   ...</code></pre></div></div></section>
-<section id="dtest_library"><h2>dtest library</h2><div class="ulist"><ul><li><p>java API on rule creation, rule installation and program workflow verification</p></li><li><p>not installing agent to the JVM itself</p></li></ul></div>
+<section id="dtest_library"><h2>dtest library</h2><div class="ulist"><ul><li><p>java API on rule creation and rule installation</p></li><li><p>not installing agent to the JVM itself</p></li><li><p>tooling for program workflow verification</p></li></ul></div>
 <aside class="notes"><div class="paragraph"><p><a href="https://github.com/bytemanproject/byteman/tree/master/contrib/dtest" class="bare">https://github.com/bytemanproject/byteman/tree/master/contrib/dtest</a></p></div></aside></section>
+<section id="dtest_howto"><h2>dtest: howto</h2><div class="listingblock stretch noborder"><div class="content"><pre class="highlight"><code data-noescape class="java language-java">// new Instrumentor(String address, int port, int rmiPort)
+// default to connect at localhost:9091, rmi at 1099
+org.jboss.byteman.contrib.dtest.Instrumentor instrumentor = new Instrumentor();
+
+instrumentor.injectOnMethod(FileInputStream.class.getName(), "&lt;init&gt;(String)",
+  "$1.contains(\"andrew\")", "throw new FileNotFoundException(\"ha ha\")", "ENTRY");
+
+RuleConstructor rule = RuleConstructor
+  .createRule("disallow reading from file")
+  .onInterface(FileInputStream.class)
+  .inMethod("&lt;init&gt;(String)")
+  .atEntry()
+  .helper(org.jboss.byteman.rule.helper.Helper.class)
+  .ifCondition("$1.contains(\"andrew\")")
+  .doAction("throw new FileNotFoundException(\"ha ha\")");
+instrumentor.installRule(rule);</code></pre></div></div></section>
+<section id="dtest_inspecting_program_workflow"><h2>dtest: inspecting program workflow</h2><div class="listingblock stretch noborder"><div class="content"><pre class="highlight"><code data-noescape class="java language-java">org.jboss.byteman.contrib.dtest.Instrumentor instrumentor = new Instrumentor();
+InstrumentedClass instrumentedClass = intrumentor.instrumentClass(FileInputStream.class);
+
+// verification if there was an instance and how much times it was called
+instrumentedClass.assertKnownInstances(1);
+instrumentedClass.assertMethodCalled("&lt;init&gt;");
+// each 'known' instance had to be called once
+instrumentedClass.assertMethodCallCount("&lt;init&gt;", 2);</code></pre></div></div></section>
+<section id="task_4"><h2>Task #4</h2><div class="imageblock noborder" style=""><img src="img/byteman-icon.png" alt="byteman icon" height="280"></div></section>
+<section id="tracing_capabilities"><h2>Tracing capabilities</h2><div class="ulist"><ul><li><p>you can write your own rule <em>DO trace("I was called!")</em></p></li><li><p>use some of the prepared scripts<br>
+&#8230;&#8203;and change them on your own</p><div class="ulist"><ul><li><p><a href="https://github.com/bytemanproject/byteman/tree/master/sample/scripts" class="bare">https://github.com/bytemanproject/byteman/tree/master/sample/scripts</a></p></li></ul></div></li></ul></div></section>
+<section id="task_5"><h2>Task #5</h2><div class="imageblock noborder" style=""><img src="img/byteman-icon.png" alt="byteman icon" height="400"></div></section>
 <section id="other_tools_for_working_with_bytecode"><h2>Other tools for working with bytecode</h2><div class="ulist"><ul><li><p>ASM: <a href="http://asm.ow2.org" class="bare">http://asm.ow2.org</a></p></li><li><p>Javassist: <a href="http://jboss-javassist.github.io/javassist" class="bare">http://jboss-javassist.github.io/javassist</a></p></li><li><p>Byte Buddy: <a href="http://bytebuddy.net" class="bare">http://bytebuddy.net</a></p></li><li><p>cglib: <a href="https://github.com/cglib/cglib" class="bare">https://github.com/cglib/cglib</a></p></li><li><p>Java Proxies: <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Proxy.html" class="bare">http://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Proxy.html</a></p></li></ul></div>
 <aside class="notes"><div class="ulist"><ul><li><p>ASM and Javassist are libraries which rather help to build other bytecode
 manipulation tools</p></li><li><p>Bytebuddy - Byte Buddy is to work declaratively, both by focusing

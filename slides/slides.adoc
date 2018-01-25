@@ -378,7 +378,7 @@ java -javaagent:byteman.jar=script:./file.btm,sys:myhelper.jar\
 
 == Task #3
 
-image::byteman-icon.png[role="noborder", ,height="180"]
+image::byteman-icon.png[role="noborder", ,height="220"]
 
 
 == BMUnit
@@ -415,7 +415,7 @@ https://github.com/bytemanproject/byteman/tree/master/contrib/bmunit
 public class BMUnitTest {
 
   @Test
-  @BMRule( name="trace thread exit",
+  @BMRule( name="disallow reading from file",
            targetClass = "FileInputStream",
            targetMethod = "<init>(String)",
            condition="$1.contains(\"andrew\")",
@@ -429,17 +429,68 @@ public class BMUnitTest {
   ...
 ----
 
+
 == dtest library
 
-* java API on rule creation, rule installation and program workflow verification
+* java API on rule creation and rule installation
 * not installing agent to the JVM itself
+* tooling for program workflow verification
 
 [NOTE.speaker]
 --
 https://github.com/bytemanproject/byteman/tree/master/contrib/dtest
 --
 
+== dtest: howto
 
+[source,java,role="stretch noborder"]
+----
+// new Instrumentor(String address, int port, int rmiPort)
+// default to connect at localhost:9091, rmi at 1099
+org.jboss.byteman.contrib.dtest.Instrumentor instrumentor = new Instrumentor();
+
+instrumentor.injectOnMethod(FileInputStream.class.getName(), "<init>(String)",
+  "$1.contains(\"andrew\")", "throw new FileNotFoundException(\"ha ha\")", "ENTRY");
+
+RuleConstructor rule = RuleConstructor
+  .createRule("disallow reading from file")
+  .onInterface(FileInputStream.class)
+  .inMethod("<init>(String)")
+  .atEntry()
+  .helper(org.jboss.byteman.rule.helper.Helper.class)
+  .ifCondition("$1.contains(\"andrew\")")
+  .doAction("throw new FileNotFoundException(\"ha ha\")");
+instrumentor.installRule(rule);
+----
+
+== dtest: inspecting program workflow
+
+[source,java,role="stretch noborder"]
+----
+org.jboss.byteman.contrib.dtest.Instrumentor instrumentor = new Instrumentor();
+InstrumentedClass instrumentedClass = intrumentor.instrumentClass(FileInputStream.class);
+
+// verification if there was an instance and how much times it was called
+instrumentedClass.assertKnownInstances(1);
+instrumentedClass.assertMethodCalled("<init>");
+// each 'known' instance had to be called once
+instrumentedClass.assertMethodCallCount("<init>", 2);
+----
+
+== Task #4
+
+image::byteman-icon.png[role="noborder", ,height="280"]
+
+== Tracing capabilities
+
+* you can write your own rule _DO trace("I was called!")_
+* use some of the prepared scripts +
+  ...and change them on your own
+** https://github.com/bytemanproject/byteman/tree/master/sample/scripts
+
+== Task #5
+
+image::byteman-icon.png[role="noborder", ,height="400"]
 
 
 == Other tools for working with bytecode
