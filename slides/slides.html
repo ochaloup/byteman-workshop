@@ -13,7 +13,7 @@ document.getElementsByTagName( 'head' )[0].appendChild( link );</script><!--[if 
 <section id="what_s_not_included" data-background-image="img/battery-empty.png" data-background-size="contain"><h2>What&#8217;s not included</h2>
 <div class="ulist"><ul><li><p>Java 9<br>
 <em>(Byteman 4.0.0+ has full support of Java 9 features)</em></p></li><li><p>testing with WildFly</p></li></ul></div></section>
-<section id="workshop_structure"><h2>Workshop structure</h2><div class="ulist"><ul><li><p><a href="https://github.com/ochaloup/byteman-workshop" class="bare">https://github.com/ochaloup/byteman-workshop</a> (<a href="http://bit.ly/byteman" class="bare">http://bit.ly/byteman</a>)</p><div class="ulist"><ul><li><p>clone the respository</p></li><li><p>set-up your environment</p></li></ul></div></li><li><p>five tasks to complete</p><div class="ulist"><ul><li><p>some parts marked as <em>optional</em></p></li></ul></div></li><li><p>a talk  to introduce the subject take place before each task</p></li></ul></div>
+<section id="workshop_structure"><h2>Workshop structure</h2><div class="ulist"><ul><li><p><a href="https://github.com/ochaloup/byteman-workshop" class="bare">https://github.com/ochaloup/byteman-workshop</a> (<a href="http://bit.ly/byteman" class="bare">http://bit.ly/byteman</a>)</p><div class="ulist"><ul><li><p>clone the respository</p></li><li><p>set-up your environment (<em>cd byteman-workshop; source setup.sh</em>)</p></li></ul></div></li><li><p>five tasks to complete</p><div class="ulist"><ul><li><p>some parts marked as <em>optional</em></p></li></ul></div></li><li><p>a talk  to introduce the subject take place before each task</p></li></ul></div>
 <aside class="notes"><div class="ulist"><ul><li><p>starting with Byteman</p></li><li><p>handling with Byteman failures</p></li><li><p>complicated Byteman actions</p></li><li><p>Byteman to help in testing</p></li><li><p>Byteman to help in tracing</p></li></ul></div></aside></section>
 <section id="byteman"><h2>Byteman!</h2><div class="imageblock noborder" style=""><img src="img/byteman-icon.png" alt="byteman icon" height="90"></div>
 <div class="ulist"><ul><li><p>java bytecode manipulation library</p></li><li><p>layered on top of ASM library</p></li><li><p>the most up-to-date version: 4.0.0 (jdk9)</p></li><li><p><a href="http://byteman.jboss.org" class="bare">http://byteman.jboss.org</a> (gh <a href="https://github.com/bytemanproject/byteman">bytemanproject/byteman</a>)</p></li><li><p>developed by <a href="https://github.com/adinn">Andrew Dinn</a></p></li></ul></div>
@@ -119,7 +119,8 @@ HELPER org.jboss.MyBytemanHelper
 <div class="listingblock"><div class="content"><pre class="highlight"><code data-noescape>java -javaagent:byteman.jar=script:./file.btm,sys:myhelper.jar\
   -cp application.jar org.jboss.MainClass</code></pre></div></div></section>
 <section id="task_3"><h2>Task #3</h2><div class="imageblock noborder" style=""><img src="img/byteman-icon.png" alt="byteman icon" height="180"></div></section>
-<section id="bmunit"><h2>BMUnit</h2><div class="ulist"><ul><li><p>a library helping to introduce rules for the tests</p></li><li><p>set of annotations</p></li><li><p>ensures loading the Byteman agent to the JVM</p></li><li><p>could be used with JUnit and TestNG</p></li></ul></div></section>
+<section id="bmunit"><h2>BMUnit</h2><div class="ulist"><ul><li><p>a library helping to introduce rules for the tests</p></li><li><p>set of annotations</p></li><li><p>ensures loading the Byteman agent to the JVM</p></li><li><p>could be used with JUnit and TestNG</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><a href="https://github.com/bytemanproject/byteman/tree/master/contrib/bmunit" class="bare">https://github.com/bytemanproject/byteman/tree/master/contrib/bmunit</a></p></div></aside></section>
 <section id="bmunit_maven_coordinates"><h2>BMUnit: maven coordinates</h2><div class="listingblock"><div class="content"><pre class="highlight"><code data-noescape>&lt;dependency&gt;
     &lt;groupId&gt;org.jboss.byteman&lt;/groupId&gt;
     &lt;artifactId&gt;byteman-bmunit&lt;/artifactId&gt;
@@ -143,8 +144,9 @@ public class BMUnitTest {
   @Test
   @BMScript("file.btm")
   public void test2() {
-  ...</code></pre></div></div>
-<aside class="notes"><div class="paragraph"><p><a href="https://github.com/bytemanproject/byteman/tree/master/contrib/bmunit" class="bare">https://github.com/bytemanproject/byteman/tree/master/contrib/bmunit</a></p></div></aside></section>
+  ...</code></pre></div></div></section>
+<section id="dtest_library"><h2>dtest library</h2><div class="ulist"><ul><li><p>java API on rule creation, rule installation and program workflow verification</p></li><li><p>not installing agent to the JVM itself</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><a href="https://github.com/bytemanproject/byteman/tree/master/contrib/dtest" class="bare">https://github.com/bytemanproject/byteman/tree/master/contrib/dtest</a></p></div></aside></section>
 <section id="other_tools_for_working_with_bytecode"><h2>Other tools for working with bytecode</h2><div class="ulist"><ul><li><p>ASM: <a href="http://asm.ow2.org" class="bare">http://asm.ow2.org</a></p></li><li><p>Javassist: <a href="http://jboss-javassist.github.io/javassist" class="bare">http://jboss-javassist.github.io/javassist</a></p></li><li><p>Byte Buddy: <a href="http://bytebuddy.net" class="bare">http://bytebuddy.net</a></p></li><li><p>cglib: <a href="https://github.com/cglib/cglib" class="bare">https://github.com/cglib/cglib</a></p></li><li><p>Java Proxies: <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Proxy.html" class="bare">http://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Proxy.html</a></p></li></ul></div>
 <aside class="notes"><div class="ulist"><ul><li><p>ASM and Javassist are libraries which rather help to build other bytecode
 manipulation tools</p></li><li><p>Bytebuddy - Byte Buddy is to work declaratively, both by focusing
