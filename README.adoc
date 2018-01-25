@@ -24,7 +24,7 @@ What you will need to have on your machine to get running particular tasks
 
 == Starting the workshop and install instructions
 
-=== Linux (Fedora 26)
+=== Linux
 
 ==== Get prerequisites (using script)
 

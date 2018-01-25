@@ -44,6 +44,8 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#configur
 
 * after source compilation (<<task1-setup>>) you can run java program at your console
 ** `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
+* the javaagent Byteman argument is in format `-javaagent:<path-to-byteman-jar>=script:<path-to-btm>`,
+  there is byteman jar at variable `$BYTEMAN_JAR`
 
 === Solution
 

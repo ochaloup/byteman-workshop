@@ -44,6 +44,12 @@ The directory `task3` contains two maven modules
 see Byteman programmer's guide section section
 http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#checking-rules-offline-using-script-bmcheck[Checking Rules Offline Using Script bmcheck]
 
+=== Hints
+
+* see the `bin` of Byteman installation to locate the `$BYTEMAN_HOME/bin/bmcheck.sh`
+* checker needs to know about classes used in the Byteman rules. Classpath `-cp`
+  will need to be adjusted on that.
+
 === Solution
 
 . `cd "$BYTEMAN_WORKSHOP/task2"`
@@ -76,7 +82,14 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#checking
 
 * Start the task2 `Task1HelloWorld` with Byteman agent and `task2.btm`
   and manage to start it without any errors
-* To get verified rules Byteman loads and how it process them (hint: ask Byteman to show logs, `-Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug`)
+* To get verified rules Byteman loads and how it process them
+
+== Hints
+
+* Byteman shows verbose output when used parameters `-Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug`
+* the java program can be run without Byteman agent as `java -cp target/byteman-workshop-task2-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task2HelloWorld`
+* Byteman can make loaded jars by boot class loader (http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#available-javaagent-options)
+  with argument `bood:<path-to-jar-file>`
 
 === Solution
 

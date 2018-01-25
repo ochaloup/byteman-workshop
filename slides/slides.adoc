@@ -21,13 +21,13 @@ Ondra Chaloupka / ochaloup@redhat.com / https://twitter.com/_chalda[@_chalda]
 
 == Motivation
 
-* tracing your code during execution
-* changing behaviour of your code while no need to be re-compiled
-** redefining return codes of a method
-** synchronizes your threads
-* big helper for testing and reproducer creation
-** throwing an exception in arbitrary point
-** simulate OOM or JVM crash
+image::thumbup.png[canvas, size=contain]
+
+* Would you like trace the code during execution without enabling trace?
+* Would you like to change program without need to re-compile?
+* Would you like to change how threads interleaves?
+* Have you got troubles to create reliable reproducer?
+* Would you like to simulate OOM or JVM crash in your tests?
 * ...
 
 [NOTE.speaker]
@@ -56,11 +56,33 @@ image::battery-empty.png[canvas, size=contain]
 
 * Java 9 +
   _(Byteman 4.0.0+ has full support of Java 9 features)_
+* testing with WildFly
+
+
+== Workshop structure
+
+* https://github.com/ochaloup/byteman-workshop (http://bit.ly/byteman)
+** clone the respository
+** set-up your environment (_cd byteman-workshop; source setup.sh_)
+
+* five tasks to complete
+** some parts marked as _optional_
+* a talk  to introduce the subject take place before each task
+
+
+[NOTE.speaker]
+--
+** starting with Byteman
+** handling with Byteman failures
+** complicated Byteman actions
+** Byteman to help in testing
+** Byteman to help in tracing
+--
 
 
 == Byteman!
 
-image::byteman-icon.png[role="noborder", ,height="50"]
+image::byteman-icon.png[role="noborder", ,height="90"]
 
 * java bytecode manipulation library
 * layered on top of ASM library
@@ -92,13 +114,14 @@ image::byteman-icon.png[role="noborder", ,height="50"]
 
 [source,bash,role="stretch noborder"]
 ----
-RULE <rule name>
-CLASS <class name>
+RULE <rule name>        <-- name
+CLASS <class name>      <-- where class/method
 METHOD <method name>
-AT <location>
-BIND <bindings>
-IF <condition>
-DO <actions>
+AT <location>           <-- location inside the method (entry/exit/line...)
+HELPER <helper class>   <-- implementation of actions used in DO
+BIND <bindings>         <-- gathering variables values to be used in DO
+IF <condition>          <-- conditions to execute the DO action
+DO <actions>            <-- what should be done
 ENDRULE
 ----
 
@@ -130,19 +153,17 @@ ENDRULE
 
 == Byteman agent setup
 
-* Byteman agent has to be specified at the start java program
+* Byteman agent specified at the start
 
 [source,bash,role="stretch noborder"]
 ----
-# started byteman agent
+# attaching the Byteman agent to the program
 java -javaagent:./byteman.jar=script:./task1.btm -cp ... org.jboss.MainClass
 ----
 
-*
-
 == Byteman agent setup #2
 
-* second way is attach agent to running java process by pid
+* Byteman aggent attached to the running java process
 
 [source,bash,role="stretch noborder"]
 ----
@@ -154,49 +175,121 @@ $BYTEMAN_HOME/bin/bminstall.sh <pid>
 
 == Byteman shell script tooling
 
-* `bminstall` : attach agent to the <pid>
-* `bmsubmit` : pass Byteman rule, trying to connect to agent listening by default at port `9091`
-* `bmcheck` : verify syntax of `btm` script
-* `bmjava` : running java program when automatically adding `-javaagent` (simple wrapper)
+* [red]#bminstall# : attaching agent to the <pid>
+** _bminstall.sh <pid>_, see help _bminstall.sh -h_
+* [orange]#bmsubmit# : injecting rule (connecting to agent, by default to _9091_)
+** _bmsubmit.sh ./file.btm_
+* [green]#bmcheck# : verifying syntax of _btm_ script
+** _bmcheck.sh ./file.btm_
+* [blue]#bmjava# : adding Byteman _-javaagent_ to java program startup
+* _bmjava.sh -l ./file.btm -cp program.jar org.jboss.MainClass_
 
+[NOTE.speaker]
+--
+http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#submitting-rules-dynamically-using-script-bmsubmit
+--
 
+== Task #1
 
+image::byteman-icon.png[role="noborder", ,height="110"]
 
-
-
-
-
-
-
-
-
-
-== Byteman DSL
+== Byteman DSL: example
 
 ```
-RULE <rule name>
-CLASS <class name>
-METHOD <method name>
-AT <location>
-BIND <bindings>
-IF <condition>
-DO <actions>
+RULE dump at ActiveMQRAManagedConnection
+CLASS ActiveMQRAManagedConnection
+METHOD getXAResource
+AT INVOKE org.apache.activemq.artemis.service.extensions.ServiceUtils.wrapXAResource
+BIND
+  c:ClientSessionInternal = $csi;
+  p:java.util.Map = $xaResourceProperties;
+  n:String = c.getNodeId();
+IF true
+DO
+  debug("Class " + $0.getClass().getName() + ", props: " + p + ", nodeid: " + n);
+  Thread.dumpStack();
 ENDRULE
-```
-
-== Byteman DSL: rules
-
-```
-RULE <rule name>
-CLASS/INTERFACE ^<class name>
-METHOD <method name>
 ```
 
 [NOTE.speaker]
 --
-* *RULE* has to be defined with unique name (not being the same)
-**  if unique name is not specified then rule is not installed
-    and possibly jvm does not start
+see: https://github.com/apache/activemq-artemis/blob/master/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/ActiveMQRAManagedConnection.java#L468
+
+* *BIND* computes values for variables which can subsequently be referenced in the rule body
+** *BIND NOTHING* could be ommitted
+** `$0` is recipient of the method calls, it could be interchanged for `$this`
+** `$1, $2, ...` are parameters of the method
+* *IF* condition when to execute the rule
+* *DO* some actions
+** you can use method defined in `org.jboss.byteman.rule.helper.Helper`
+--
+
+== Byteman DSL
+
+[source,bash,role="stretch noborder"]
+----
+RULE <rule name>        <-- name
+CLASS <class name>      <-- where class/method
+METHOD <method name>
+AT <location>           <-- location inside the method (entry/exit/line...)
+HELPER <helper class>   <-- implementation of actions used in DO
+BIND <bindings>         <-- gathering variables values to be used in DO
+IF <condition>          <-- conditions to execute the DO action
+DO <actions>            <-- what should be done
+ENDRULE
+----
+
+[NOTE.speaker]
+--
+* http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#class-rules-vs-interface-rules
+** CLASS vs INTERFACE, overriding with ^
+* http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#location-specifiers
+** many options see the doc
+* http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-bindings
+** many special variable normally started with `$`
+* http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-conditions
+** has to return boolean
+* http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-actions
+** java calls - e.g. `System.out.println()` or methods from Helper
+** DO offers limitation on what you can write down there - you won't be permitted to use e.g. complicated
+   lamda expression (`list.stream.mapToInt(i -> i).reduce(0, Integer::sum)`, _using .sum() won't help_)
+--
+
+== Byteman DSL: tricky points
+
+* *RULE* name has to be unique, otherwise JVM won't start
+* be sure on *CLASS* and *INTERFACE* otherwise the rule could not be applied
+* *CLASS* can be defined with or without package (_CLASS String_ vs. _CLASS java.lang.String_)
+* remember you need to use *^* sometimes (_CLASS ^MyAbstractClass_)
+* *METHOD* can be defined with or without argument list (_METHOD valueOf_ vs _METHOD valueOf(int)_)
+* *METHOD* names _<init>_ or _<clinit>_ specify binding at constructor/class init method
+
+== Byteman DSL: tricky points #2
+
+* the rule parts which could be ommitted
+** *HELPER* : default *org.jboss.byteman.rule.helper.Helper*
+** *AT* : *AT ENTRY* will be used
+** *BINDING*: used *BINDING NOTHING*, no binding is specified
+* the rule has to define!
+** *IF*: if you want to use rule in whatever case use *IF true*
+
+=== Byteman DSL: minimalistic
+
+[source,bash,role="stretch noborder"]
+----
+RULE <rule name>
+CLASS <class name>
+METHOD <method name>
+IF true
+DO <actions>
+ENDRULE
+----
+
+
+[NOTE.speaker]
+--
+* clinit: https://stackoverflow.com/questions/8517121/java-what-is-the-difference-between-init-and-clinit
+* if rule unique name is not specified then rule is not installed and possibly jvm does not start
 
 ```
 Exception in thread "main" java.lang.reflect.InvocationTargetException
@@ -219,88 +312,134 @@ previously defined in file ../simple.btm  line 14
   ... 11 more
 FATAL ERROR in native method: processing of -javaagent failed
 ```
-
-* *CLASS* defined with or without package qualification
-** *INTERFACE* when interface should be used instead
-** when inherrited fot childer classes use _^_
-* *METHOD* defined with or without argument list, _<init>_ or _<clinit>_ could be used
 --
 
-== Byteman DSL: location
+== Verify rule syntax
 
-* AT ENTRY/EXIT
-* AT LINE
-* AT/AFTER READ/WRITE
-* AT/AFTER INVOKE
-* AT/AFTER SYNCHRONIZE
-* AT THROW/EXCEPTION EXIT
-
-== Byteman DSL: bind/if/do
-
+* _bmcheck.sh -p org.jboss.btm.workshop -cp target/program.jar ./task2.btm_
+* maven rulecheck plugin
 ```
-RULE dump at ActiveMQRAManagedConnection
-CLASS ActiveMQRAManagedConnection
-METHOD getXAResource
-AT INVOKE org.apache.activemq.artemis.service.extensions.ServiceUtils.wrapXAResource
-BIND
-  c:ClientSessionInternal = $csi;
-  p:java.util.Map = $xaResourceProperties;
-  n:String = c.getNodeId();
-IF true
-DO
-  debug("Class " + $0.getClass().getName() + ", props: " + p + ", nodeid: " + n);
-  Thread.dumpStack();
-ENDRULE
+<groupId>org.jboss.byteman</groupId>
+<artifactId>byteman-rulecheck-maven-plugin</artifactId>
 ```
 
 [NOTE.speaker]
 --
-* *BIND* computes values for variables which can subsequently be referenced in the rule body
-** *BIND NOTHING* could be ommitted
-** `$0` is recipient of the method calls, it could be interchanged for `$this`
-** `$1, $2, ...` are parameters of the method
-* *IF* condition when to execute the rule
-* *DO* some actions
-** you can use method defined in `org.jboss.byteman.rule.helper.Helper`
+* https://github.com/bytemanproject/byteman/tree/master/contrib/rulecheck-maven-plugin
+* https://github.com/bytemanproject/byteman/blob/master/contrib/rulecheck-maven-plugin/example/pom.xml
 --
 
-== Byteman DSL: helper
+== Classloading and additions
 
-```
-CLASS org.jboss.as.test.jbossts.crashrec.common.CrashBeanCommon
-METHOD beforeEntityUpdate
-HELPER org.jboss.byteman.contrib.dtest.BytemanTestHelper
-AT ENTRY
-IF true
-DO $0.enlistSynchronization(1), $0.enlistXAResource(1)
-ENDRULE
-```
-
-* util methods from `org.jboss.byteman.rule.helper.Helper`
-* https://github.com/bytemanproject/byteman/blob/master/agent/src/main/java/org/jboss/byteman/rule/helper/Helper.java
-
-=== Byteman DSL: helper
-
-```
-java -javaagent:$BYTEMAN_HOME/lib/byteman.jar=script:../simple.btm,sys:helper.jar -cp application.jar org.jboss.qa.App
-```
-
-== Byteman administration
-
-* `bmjava`
-* `bminstall`
-* `bmsubmit`
-* on wildfly
+* to define classes loaded by specific classloader you can use Byteman agent properties
+** _sys:<jar-file>_
+** _boot:<jar-file>_
+* by default byteman does not inject rules under package _java.lang_,
+  if you want to allow this, use _-Dorg.jboss.byteman.transform.all_
+* to get information about Byteman processing use _-Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug_
 
 [NOTE.speaker]
 --
-* *bmjava* launching java program instrumeted with byteman
-* *bmsubmit* submits rule `-l`
-* *bminstall* uses Java API for dynamic attach (imports `com.sun.tools.attach.VirtualMachine`,
-  check code of org.jboss.byteman.agent.install.Install where agent jar is installed,
-  This loads jar file and search for class with method `agentmain` which is `org.jboss.byteman.agent.Main`.
-. see example `part1/03_bmsubmit`
+* http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#available-javaagent-options
+* https://zeroturnaround.com/rebellabs/rebel-labs-tutorial-do-you-really-get-classloaders/2/
+** sytem <- extension <- boostrap
+** quote from the article above:
+*** the classloader hierarchy is not an inheritance hierarchy, but a delegation hierarchy
+*** most classloaders delegate finding classes and resources to their parent before searching their own classpath.
+    If the parent classloader cannot find a class or resource, only then does the classloader attempt to find them locally.
+    In effect, a classloader is responsible for loading only the classes not available to the parent
+*** classes loaded by a classloader higher in the hierarchy cannot refer to classes available lower in the hierarchy.
 --
+
+== Task #2
+
+image::byteman-icon.png[role="noborder", ,height="150"]
+
+
+== Language standard build-ins
+
+* http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#byteman-rule-language-standard-built-ins
+* defined at _org.jboss.byteman.rule.helper.Helper_
+** https://github.com/bytemanproject/byteman/blob/master/agent/src/main/java/org/jboss/byteman/rule/helper/Helper.java
+
+
+== Helper to use
+
+```
+...
+HELPER org.jboss.MyBytemanHelper
+...
+```
+
+```
+java -javaagent:byteman.jar=script:./file.btm,sys:myhelper.jar\
+  -cp application.jar org.jboss.MainClass
+```
+
+== Task #3
+
+image::byteman-icon.png[role="noborder", ,height="180"]
+
+
+== BMUnit
+
+* a library helping to introduce rules for the tests
+* set of annotations
+* ensures loading the Byteman agent to the JVM
+* could be used with JUnit and TestNG
+
+[NOTE.speaker]
+--
+https://github.com/bytemanproject/byteman/tree/master/contrib/bmunit
+--
+
+
+== BMUnit: maven coordinates
+
+```
+<dependency>
+    <groupId>org.jboss.byteman</groupId>
+    <artifactId>byteman-bmunit</artifactId>
+    <version>4.0.0</version>
+    <scope>test</scope>
+</dependency>
+```
+
+== BMUnit: example
+
+[source,java,role="stretch noborder"]
+----
+@RunWith( BMUnitRunner.class )
+@BMScript( dir="test/scripts" )
+@BMUnitConfig( debug = true, verbose = true )
+public class BMUnitTest {
+
+  @Test
+  @BMRule( name="trace thread exit",
+           targetClass = "FileInputStream",
+           targetMethod = "<init>(String)",
+           condition="$1.contains(\"andrew\")",
+           action="throw new FileNotFoundException(\"ha ha\")")
+  public void test1() {
+  ...
+
+  @Test
+  @BMScript("file.btm")
+  public void test2() {
+  ...
+----
+
+== dtest library
+
+* java API on rule creation, rule installation and program workflow verification
+* not installing agent to the JVM itself
+
+[NOTE.speaker]
+--
+https://github.com/bytemanproject/byteman/tree/master/contrib/dtest
+--
+
+
 
 
 == Other tools for working with bytecode

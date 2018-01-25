@@ -53,7 +53,7 @@ public class DTestTest {
      */
     @Test
     public void notAllowingSubtractThread() throws Exception {
-        // dTest rule definition
+        // dtest rule definition
         RuleConstructor rule = RuleConstructor
             .createRule("not allowing subtract thread")
             .onInterface(Callable.class)
