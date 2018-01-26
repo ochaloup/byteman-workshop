@@ -5,6 +5,7 @@ METHOD main
 AFTER WRITE $message
 IF TRUE
 DO
+  # TODO: change to 'I forgot what to say'
   $message = "Hello Byteman!"
 ENDRULE
 

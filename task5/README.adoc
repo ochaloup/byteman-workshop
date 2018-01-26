@@ -17,24 +17,25 @@ Each callable instance makes change in shared static counter and ends.
 
 . setup your environment at link:../README.adoc[prerequisites], ensures sources are compiled (`mvn install -DskipTests`)
 . go to the directory `$BYTEMAN_WORKSHOP/task5`: `cd "$BYTEMAN_WORKSHOP/task5"`
-. check source code of `Task5Main.java` class
 
 [[part1]]
 == Part1: use sample btm script to monitor thread activity
 
 === Task
 
-* Use script https://github.com/bytemanproject/byteman/blob/master/sample/scripts/ThreadMonitorHistory.btm[ThreadMonitorHistory.btm]
-  to monitor Thread activity of the attached java program.
-* The script saves information about started threads and the purpose is to write them at the end
-  to a file at your machine.
+* Observe  https://github.com/bytemanproject/byteman/blob/master/sample/scripts/
+** there are scripts containing samples to help in monitoring your application
+* Run the program with script `ThreadMonitorHistory.btm` and observe output file `./thread-system-exit-0.txt`
 * _(Optional)_ Investigate why the program is not finished when the `btm` script is used.
 
 === Hints
 
 * after compilation <<task5-setup>> you can run the program from console
 ** `java -cp target/byteman-workshop-task5-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task5Main`
-* use the slightly adjusted `btm` script from `$BYTEMAN_WORKSHOP/task5/ThreadMonitorHistory.btm`
+* use the `btm` script at `$BYTEMAN_WORKSHOP/task5/ThreadMonitorHistory.btm`
+** original script is at https://github.com/bytemanproject/byteman/blob/master/sample/scripts/ThreadMonitorHistory.btm[ThreadMonitorHistory.btm]
+* when running the program with `-javaagent` and the script it will get stuck,
+  exit with `CTRL+C` or `kill`
 
 === Solution
 
