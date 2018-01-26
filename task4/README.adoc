@@ -63,13 +63,13 @@ Let's take a look at the first two test methods. The rest is similar.
 . create annotation `@BMRule` at the test `notAllowingSubtractThread`
   and used parameters `name`, `targetClass`, `isInterface = true`, `targetMethod`,
   `targetLocation`, `condition` and `action` with values taken from the rule in the `btm` file
-. run the test `mvn test -dtest=BMUnitTest#notAllowingSubtractThread`
+. run the test `mvn test -Dtest=BMUnitTest#notAllowingSubtractThread`
 . for the test method `threadMethodNotExecuted` let's use `@BMScript` annotations.
   It makes you to define path to `btm` script which will be applied for the test.
 . there is prepared file `src/test/resources/threadMethodNotExecuted.btm` which means
   it's at the class path and thus loaded if used only by name
 . use annotation `@BMScript("threadMethodNotExecuted.btm")`
-. run test `mvn test -dtest=BMUnitTest#threadMethodNotExecuted`
+. run test `mvn test -Dtest=BMUnitTest#threadMethodNotExecuted`
 
 
 [[part2]]

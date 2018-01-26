@@ -97,7 +97,7 @@ DO
 ENDRULE
 ```
 
-* for influence all the child classes you need to use the `ITERFACE` with sign `^`
+* for influence all the child classes you need to use the `INTERFACE` with sign `^`
   for rule being propagated down through the abstract class
 * the `$1` says the first parameter passed to the method `process` of interface `Task3GreetingsProcessor`
 * you can check in `IF` the method parameter and at the same time you can change its value

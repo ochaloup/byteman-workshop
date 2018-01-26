@@ -82,7 +82,7 @@ NOTE: there is difference between `bmcheck` tooling and the Byteman agent. `bmch
 
 === Goal
 
-* Start the task2 `Task1HelloWorld` with Byteman agent and `task2.btm`
+* Start the task2 `Task2HelloWorld` with Byteman agent and `task2.btm`
   and manage to start it without any errors
 * To get verified rules Byteman loads and how it process them
 
