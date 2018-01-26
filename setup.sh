@@ -49,13 +49,16 @@ fi
 export BYTEMAN_HOME="$BYTEMAN_WORKSHOP/libs/byteman-download-4.0.0"
 export BYTEMAN_JAR="$BYTEMAN_HOME/lib/byteman.jar"
 
-# check
-echo ; echo
-echo 'Checking the outcome of the script:'
-
-mvn -version
-file "$BYTEMAN_JAR"
-
 echo ; echo
 echo 'Java compilation'
 mvn install -DskipTests
+
+# check
+echo ; echo
+echo 'Checking the outcome of the script:'
+echo 'mvn -version'
+mvn -version
+echo 'file $BYTEMAN_JAR'
+file "$BYTEMAN_JAR"
+echo 'echo $BYTEMAN_HOME'
+echo $BYTEMAN_HOME

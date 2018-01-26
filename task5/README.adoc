@@ -6,7 +6,7 @@
 
 == Source code overview
 
-The directory `task5` contains simple java program started with class `Task5Main`
+The directory `task5` contains simple java program started with class `org.jboss.btm.workshop.Task5Main`
 which contain main method to be started. +
 The main method creates in cycle instances of `java.util.concurrent.Callable`
 which are then submitted to executor and run. +
@@ -15,9 +15,8 @@ Each callable instance makes change in shared static counter and ends.
 [[task5-setup]]
 == Setup
 
-. setup your environment (link:../README.adoc[prerequisites])
+. setup your environment at link:../README.adoc[prerequisites], ensures sources are compiled (`mvn install -DskipTests`)
 . go to the directory `$BYTEMAN_WORKSHOP/task5`: `cd "$BYTEMAN_WORKSHOP/task5"`
-. compile java sources: `mvn clean install`
 . check source code of `Task5Main.java` class
 
 [[part1]]

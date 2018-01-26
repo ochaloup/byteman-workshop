@@ -8,20 +8,19 @@
 
 == Source code overview
 
-The directory `task1` contains simple java program started with two classes when run
+The directory `task1` is simple java program containing
 
-* `Task1HelloWorld` prints just hello world message
-* `Task1HelloWorldWaiting` prints hellow world message but waits for key input to write
+* `org.jboss.btm.workshop.Task1HelloWorld` prints just hello world message
+* `org.jboss.btm.workshop.Task1HelloWorldWaiting` prints hellow world message but waits for key input to write
   the same message again
 
 [[task1-setup]]
 == Setup
 
-. see how to setup your environment at link:../README.adoc[prerequisites]
-.. check Byteman jar exists under variable `$BYTEMAN_JAR`: `file "$BYTEMAN_JAR"`
-. go to the directory `$BYTEMAN_WORKSHOP/task1`: `cd "$BYTEMAN_WORKSHOP/task1"`
-. compile java sources: `mvn clean install`
-. check source code of `Task1HelloWorld*.java` classes
+. setup your environment at link:../README.adoc[prerequisites], ensures sources are compiled (`mvn install -DskipTests`)
+. check Byteman jar exists under variable `$BYTEMAN_JAR`: `file "$BYTEMAN_JAR"`
+. go to the directory `$BYTEMAN_WORKSHOP/task1`: `cd "$BYTEMAN_WORKSHOP/task1"`)
+. observe source code of `Task1HelloWorld.java` classes
   ** you can go to directory `$BYTEMAN_WORKSHOP/task1/src/main/java/org/jboss/btm/workshop`
   ** you can import the code as maven project under you IDE
 
@@ -33,7 +32,7 @@ The directory `task1` contains simple java program started with two classes when
 
 * Run the java class `Task1HelloWorld` for you getting printed message `Hello world!`
 * With use of the Byteman script at `$BYTEMAN_WORKSHOP/task1/task1.btm` get printed
-  `Hello Byteman!` instead
+  `Hello Byteman!`
 
 === References
 
@@ -46,26 +45,35 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#configur
 ** `java -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
 * the javaagent Byteman argument is in format `-javaagent:<path-to-byteman-jar>=script:<path-to-btm>`,
   there is byteman jar at variable `$BYTEMAN_JAR`
+* use order of parameter `java -javaagent=... Task1HelloWorld` not in way
+  `java ... Task1HelloWorld -javaagent=...`, in the second case the _-javaagent_
+  is considered as parameter of the program not the JVM
+* observe content of `task1.btm` to change message which is printed
 
 === Solution
 
 . attach the Byteman java agent to the starting java program and provide the Byteman script
   with rule changing the program behaviour
   ** `java -javaagent:$BYTEMAN_JAR=script:./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
+. change message `I forgot what to say` at `$BYTEMAN_WORKSHOP/task1/task1.btm` to `Hello Byteman!`
+. run the command once again
+** `java -javaagent:$BYTEMAN_JAR=script:./task1.btm -cp target/byteman-workshop-task1-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task1HelloWorld`
 
 [[part2]]
-== Part2: using Byteman scripts
+== Part2: using Byteman tooling
 
 === Task
 
-* Run the java class `Task1HelloWorldWaiting` for you getting printed message `Hello world!`
+* Run the java class `Task1HelloWorldWaiting` for you getting printed message `Hello Byteman!`
   when you type any key
-* Check if the running java process has installed Byteman java agent
+* Don't use `-javaagent` for that but utilize `bminstall` and `bmsubmit` tools
 
 === Hints
 
 * Install Byteman java agent to the running java process (hint: `bminstall.(sh|bat)`)
 * Show and install Byteman rules (a script) to change the program behaviour  (hint: `bmsubmit.(sh|bat)`)
+* `$BYTEMAN_HOME` contains `bin` directory with tooling, `$BYTEMAN_JAR` contains Byteman jar to be used
+** see `$BYTEMAN_HOME/bin/bminstall.sh -h`, `$BYTEMAN_HOME/bin/submit.sh -h`
 
 === References
 
@@ -91,9 +99,10 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#installi
      `$BYTEMAN_HOME/bin/bmsubmit.sh "$BYTEMAN_WORKSHOP/task1/task1.btm"` +
      and you should be informed that two rules were installed
   .. run only `$BYTEMAN_HOME/bin/bmsubmit.sh` to see what are installed rules
-  . get back to the running program `Task1HelloWorldWaiting` and hit enter,
-    you will receive message `Hello Byteman!` now
-  . you can close the program by entering `quit`
+. get back to the running program `Task1HelloWorldWaiting` and hit enter,
+  you will receive message `Hello Byteman!` now
+. you can unload all rules `$BYTEMAN_HOME/bin/bmsubmit.sh -u`
+. you can close the program by entering `quit`
 
 
 [[part3]]
@@ -101,7 +110,8 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#installi
 
 === Task
 
-* to run Byteman script in WildFly installation
+* to run Byteman script `task1.btm` in WildFly installation
+* chedk WildFly starting log and observer `I'm Byteman and I'm here!` message
 
 === Preparation
 
@@ -115,6 +125,11 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#installi
 You can see some details at Byteman tutorial
 https://developer.jboss.org/wiki/ABytemanTutorial#how_do_i_run_jboss_as_with_byteman
 
+=== Hints
+
+* the `-javaagent` could be part of the `JAVA_OPTS` which could be used in case of WildFly start
+* `JAVA_OPTS` could be changed under `$JBOSS_HOME/bin/standalone.conf`
+
 === Solution
 
 . open the `$JBOSS_HOME/bin/standalone.conf` file in text editor
@@ -125,9 +140,6 @@ https://developer.jboss.org/wiki/ABytemanTutorial#how_do_i_run_jboss_as_with_byt
    which is then used at property `jboss.modules.system.pkgs`
 . run the WildFly `$JBOSS_HOME/bin/standalone.sh`you can see at the start-up message in the log:
   `I'm Byteman and I'm here!`.
-
-Changing settings of `JAVA_OPTS` for WildFly startp is the same what is possible to be
-done for any other java program.
 
 As WildFly uses jboss modules there is restrictive class path visibility. The use of `jboss.modules.system.pkgs`
 says that the Byteman classes are searched for in the system classloader.

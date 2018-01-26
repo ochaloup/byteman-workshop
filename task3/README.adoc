@@ -8,13 +8,23 @@
 
 IMPORTANT: Expecting you won't change the *java* code!
 
+== Source code overview
+
+The directory `task3` contains two maven modules
+
+* `greetings` containing code of the program we will work with. There is hierarchy
+  of greeting instances taken from interface `org.jboss.btm.workshop.Task3GreetingsProcessor`.
+  Then there is main class taken arguments from command line and pass them to the
+  processors which then returns an text output.
+* `helper` is module containing maven helper class which functionality is for more
+  complicated code which is not permitted under Byteman action script DSL,
+  helper class is `org.jboss.btm.workshop.Task3Helper`
 
 [[task3-setup]]
 == Setup
 
-. setup your environment (link:../README.adoc[prerequisites])
+. setup your environment at link:../README.adoc[prerequisites], ensures sources are compiled (`mvn install -DskipTests`)
 . go to the directory `$BYTEMAN_WORKSHOP/task3`: `cd "$BYTEMAN_WORKSHOP/task3"`
-. compile java sources: `mvn clean install`
 . you can import the projects from folders `greetings` and `helper` to you IDE
 
 [[part1]]
@@ -66,11 +76,11 @@ ENDRULE
   http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-bindings-and-parameterization
 * you can even redefine the method parameters `$1`, `$2`, ... in the `DO` clause, see
 * you can use the empty `task3.btm` file to write the Byteman rule into and run then
-** `java -javaagent:$BYTEMAN_JAR=script:./task3.btm -cp target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main hello hi`
+** `java -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task3/greetings/task3.btm -cp $BYTEMAN_WORKSHOP/task3/greetings/target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main hello hi`
 * you can check the syntax of the `btm` file with `bmcheck` tool
-** `$BYTEMAN_HOME/bin/bmcheck.sh -p org.jboss.btm.workshop -cp target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar task3.btm`
+** `$BYTEMAN_HOME/bin/bmcheck.sh -p org.jboss.btm.workshop -cp $BYTEMAN_WORKSHOP/task3/greetings/target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar task3.btm`
 * you can get verbose/debug messages from byteman processing when you use
-** `java -javaagent:$BYTEMAN_JAR=script:./task3.btm -cp target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug org.jboss.btm.workshop.Task3Main hello hi`
+** `java -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task3/greetings/task3.btm -cp $BYTEMAN_WORKSHOP/task3/greetings/target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug org.jboss.btm.workshop.Task3Main hello hi`
 
 === Solution
 
@@ -163,12 +173,12 @@ ENDRULE
 === Task
 
 * take your Byteman rule from <<part1>> and tune it with use of prepared Byteman helper
-  `Task3Helper` which is able to load list of greetings from a file.
-  If the provided parameter equals one of the item loaded from the file then the
-  rule changing the behaviour is used.
+  `Task3Helper`
 
 === Hints
 
+* `Task3Helper` knows to load list of lines (greetings) from a file,
+  in this case by default it's file `task3.greetings` loaded from classpath
 * You can use the prepared Byteman rule presented in solution of the <<part1>>
   and change it to use the Byteman helper
 
@@ -182,9 +192,11 @@ DO
   $1 = "god bless you"
 ENDRULE
 ```
-* you find the Byteman helper class under path `$BYTEMAN_WORKSHOP/task3/helper/target/byteman-workshop-task3-helper-1.0.0-SNAPSHOT.jar`
-* see documentation about using user defined helper via clause `HELPER` at
+* running the program with Byteman rule
+** `java -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task3/greetings/task3.btm -cp target/byteman-workshop-task3-greetings-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task3Main ola hola`
+* remember existence of `HELPER` clause, see documentation about at
   http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#user-defined-rule-helpers
+* Byteman needs to know path to the helper at classpath, here at `$BYTEMAN_WORKSHOP/task3/helper/target/byteman-workshop-task3-helper-1.0.0-SNAPSHOT.jar`
 
 === Solution
 

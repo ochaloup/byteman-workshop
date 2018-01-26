@@ -72,10 +72,7 @@ WARNING: steps referred through the workshop instructions are relative
   .. `export BYTEMAN_JAR="$BYTEMAN_HOME/lib/byteman.jar"`
   .. to check that byteman jar exists `file "$BYTEMAN_JAR"` (expected output _...: Java archive data (JAR)_)
      or `java -jar "$BYTEMAN_JAR"` (expected output _no main manifest attribute, in..._)
-. WildFly binaries as optional can be found at http://wildfly.org/downloads
-  .. `wget http://download.jboss.org/wildfly/11.0.0.Final/wildfly-11.0.0.Final.zip -O "$BYTEMAN_WORKSHOP/libs/wildfly11.zip"`
-  .. `unzip -d "$BYTEMAN_WORKSHOP/libs/" "$BYTEMAN_WORKSHOP/libs/wildfly11.zip"`
-  .. `export JBOSS_HOME="$BYTEMAN_WORKSHOP/libs/wildfly-11.0.0.Final"`
+. compile java sources `cd $BYTEMAN_WORKSHOP; mvn install -DskipTests`
 
 NOTE: now you can find the http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.pdf[Byteman programmer's guide]
 at `$BYTEMAN_WORKSHOP/libs/byteman-download-4.0.0/docs/byteman-programmers-guide.pdf`
@@ -88,3 +85,17 @@ see instructions for the Linux and adjust it for your purpose.
 
 NOTE: Instruction for the installation and running the tasks were prepared
 and tested only for Linux. Feel free to contribute here :-)
+
+NOTE: on Windows instead of bash keyword `export` use cmd keyword `set`
+
+== To verify prerequisites
+
+Check the following environmental variables exists
+
+* `BYTEMAN_HOME`
+* `BYTEMAN_JAR`
+* `JAVA_HOME`
+
+Try to run
+
+* `mvn -version`

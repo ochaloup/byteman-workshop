@@ -10,37 +10,20 @@
 * opened Byteman programmer's guide
 ** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html
 ** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.pdf
-
+* get opened
+** https://github.com/apache/activemq-artemis/blob/master/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/ActiveMQRAManagedConnection.java#L468
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#class-rules-vs-interface-rules
+*** CLASS vs INTERFACE, overriding with ^
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#location-specifiers
+*** many options see the doc
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-bindings
+*** many special variable normally started with `$`
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-conditions
+*** has to return boolean
+** http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#rule-actions
 
 == Fix things
 
-* $BYTEMAN_JAR means in the Hints
-* Hints for task1/part2 - $BYTEMAN_HOME
-* -javaagent needs to be just after java command (java -cp a Hello -javaagent does not work)
-* bminstall - cannot locate tools jar
-* task1/part3 - change setup.sh to not downloading wfly
-** describe steps and create hints, reformulate
-* task1
-** change part1 to not saying hello byteman but something else as the task
-** part2: not readable goals/hints
-** part3: need say what should be in the logs of wfly when success comes
-* task2 change btm
-* task2 ma spatny source overvie (z task3)
-** remove 'bood'
-** task2: part1 zachovat, pridat info o debug a verbose a jinak ostatni jako optional
-** task2: hints -p a -cp - rozdil
-** task2: bmcheck what is about
-** task2: zanest chybu :)
-* task3
-** use the part3 as part1 and other will be optional
-** change hints to be better
-* task4
-** source code overview contains data from task5
-
-* example dsl - c whree is it from
-
-== Timing
-
-* started 13:35
-* first talk ened 13:52
-*
+TODO in basics_task branch
+* task1: change text in script to 'I forgot what to say'
+* task2: zanest chybu :)

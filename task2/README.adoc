@@ -10,22 +10,13 @@ IMPORTANT: Expecting you won't change the *java* code!
 
 == Source code overview
 
-The directory `task3` contains two maven modules
-
-* `greetings` containing code of the program we will work with. There is hierarchy
-  of greeting instances taken from interface `Task3GreetingsProcessor`.
-  Then there is main class taken arguments from command line and pass them to the
-  processors which then returns an text output.
-* `helper` is module containing maven helper class which functionality is for more
-  complicated code which is not permitted under Byteman action script DSL
-
+The directory `task2` contains one main java class `org.jboss.btm.workshop.Task2HelloWorld`
 
 [[task2-setup]]
 == Setup
 
-. setup your environment (link:../README.adoc[prerequisites])
+. setup your environment at link:../README.adoc[prerequisites], ensures sources are compiled (`mvn install -DskipTests`)
 . go to the directory `$BYTEMAN_WORKSHOP/task2`: `cd "$BYTEMAN_WORKSHOP/task2"`
-. compile java sources: `mvn clean install`
 . check source code of `Task2HelloWorld.java` class
   ** you can go to directory `$BYTEMAN_WORKSHOP/task2/src/main/java/org/jboss/btm/workshop`
   ** you can import the code as maven project under you IDE
@@ -38,6 +29,7 @@ The directory `task3` contains two maven modules
 
 * Use Byteman tooling to see what are errors in the script `task2.btm` (hint: `bmcheck.(sh|bat)`)
 * Correct the `task2.btm` for getting *no* syntax errors when running `bmcheck`
+** expected output to see no errors is `TestScript: no errors`
 
 === References
 
@@ -46,9 +38,19 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#checking
 
 === Hints
 
+* ``
 * see the `bin` of Byteman installation to locate the `$BYTEMAN_HOME/bin/bmcheck.sh`
-* checker needs to know about classes used in the Byteman rules. Classpath `-cp`
-  will need to be adjusted on that.
+* `bmcheck.sh` needs to understand classes which are in the script, you will need
+  provide the compiled jar to the `bmcheck.sh` classpath (use parameter `-cp`)
+* if `btm` script contains classes of not fully qualified name (only the class without package)
+  the `bmcheck.sh` needs to  be informed what are packages to consider with parameter `-p`
+  (the `Task2HelloWorld` is in the package `org.jboss.btm.workshop`)
+
+NOTE: there is difference between `bmcheck` tooling and the Byteman agent. `bmcheck` script needs
+      to know the fully qualified name of class (advices with `-p`) where Byteman agent
+      is fine with just class name (without package) and will distinguish it
+
+* in case of troubles try to switch on Byteman debug parameters `-Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug`
 
 === Solution
 
@@ -89,7 +91,7 @@ http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#checking
 * Byteman shows verbose output when used parameters `-Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug`
 * the java program can be run without Byteman agent as `java -cp target/byteman-workshop-task2-1.0.0-SNAPSHOT.jar org.jboss.btm.workshop.Task2HelloWorld`
 * Byteman can make loaded jars by boot class loader (http://downloads.jboss.org/byteman/4.0.0/byteman-programmers-guide.html#available-javaagent-options)
-  with argument `bood:<path-to-jar-file>`
+  with argument `boot:<path-to-jar-file>`
 
 === Solution
 

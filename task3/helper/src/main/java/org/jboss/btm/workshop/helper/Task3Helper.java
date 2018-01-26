@@ -15,7 +15,7 @@ import org.jboss.byteman.rule.Rule;
 
 public class Task3Helper extends org.jboss.byteman.rule.helper.Helper {
     private static final String GREETINGS_FILE_NAME
-        = System.getProperty("org.jboss.byteman.task3.greetingsfile", "greetings.properties");
+        = System.getProperty("org.jboss.byteman.task3.greetingsfile", "task3.greetings");
 
     protected Task3Helper(Rule rule) {
         super(rule);
@@ -49,7 +49,7 @@ public class Task3Helper extends org.jboss.byteman.rule.helper.Helper {
 
         return is == null ? Optional.empty() : Optional.of(is);
     }
-    
+
     private List<String> loadLines(InputStream is) throws IOException {
         List<String> greetings = new ArrayList<>();
         String line;

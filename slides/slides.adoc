@@ -7,8 +7,10 @@
 :imagesdir: img
 :backend: revealjs
 
-// bundle exec asciidoctor-revealjs slides.adoc
 // doc at http://asciidoctor.org/docs/asciidoctor-revealjs
+// git submodule init
+// git submodule update
+// bundle exec asciidoctor-revealjs slides.adoc
 // [%notitle]
 
 == Byteman basics
@@ -158,8 +160,20 @@ ENDRULE
 [source,bash,role="stretch noborder"]
 ----
 # attaching the Byteman agent to the program
-java -javaagent:./byteman.jar=script:./task1.btm -cp ... org.jboss.MainClass
+java -javaagent:./byteman.jar=script:./file.btm  -cp ... org.jboss.MainClass
+
+#
+# -- OR --
+#
+
+export JAVA_TOOL_OPTIONS="-javaagent:./byteman.jar=script:./file.btm"
+java -cp ... org.jboss.MainClass
 ----
+
+[NOTE.speaker]
+--
+see https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/envvars002.html
+--
 
 == Byteman agent setup #2
 
@@ -171,6 +185,8 @@ java -javaagent:./byteman.jar=script:./task1.btm -cp ... org.jboss.MainClass
 jps -l
 # to attach agent to the <pid>
 $BYTEMAN_HOME/bin/bminstall.sh <pid>
+# to install rules
+$BYTEMAN_HOME/bin/bmsubmit.sh ./file.btm
 ----
 
 == Byteman shell script tooling
@@ -208,19 +224,21 @@ METHOD getXAResource
 AT INVOKE org.apache.activemq.artemis.service.extensions.ServiceUtils.wrapXAResource
 BIND
   c:ClientSessionInternal = $csi;
-  p:java.util.Map = $xaResourceProperties;
+  xa:java.util.Map = $xaResourceProperties;
   n:String = c.getNodeId();
+  u:String = $this.userName;
+  p:String = $this.password;
 IF true
 DO
-  debug("Class " + $0.getClass().getName() + ", props: " + p + ", nodeid: " + n);
+  debug("Class " + $0.getClass().getName() + ", props: " + xa + ", node: " + n);
   Thread.dumpStack();
 ENDRULE
 ```
 
+https://github.com/apache/activemq-artemis/blob/master/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/ActiveMQRAManagedConnection.java#L468
+
 [NOTE.speaker]
 --
-see: https://github.com/apache/activemq-artemis/blob/master/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/ActiveMQRAManagedConnection.java#L468
-
 * *BIND* computes values for variables which can subsequently be referenced in the rule body
 ** *BIND NOTHING* could be ommitted
 ** `$0` is recipient of the method calls, it could be interchanged for `$this`
@@ -269,6 +287,7 @@ ENDRULE
 * remember you need to use *^* sometimes (_CLASS ^MyAbstractClass_)
 * *METHOD* can be defined with or without argument list (_METHOD valueOf_ vs _METHOD valueOf(int)_)
 * *METHOD* names _<init>_ or _<clinit>_ specify binding at constructor/class init method
+* *DO* actions have to be delimited with _,_ or _;_ (_DO debug("throw"), throw new ..._)
 
 == Byteman DSL: tricky points #2
 

@@ -7,7 +7,7 @@
 
 == Source code overview
 
-The directory `task5` contains sources (`src/main/java`) and tests (`src/test/java`).
+The directory `task4` contains sources (`src/main/java`) and tests (`src/test/java`).
 The source code is few instances of `java.util.concurrent.Callable` and
 changing value of static counter variable. +
 The tests uses the source callable classes and invokes server threads
@@ -22,9 +22,8 @@ where using Byteman scripts to influence how they behaves.
 [[task2-setup]]
 == Setup
 
-. setup your environment (link:../README.adoc[prerequisites])
+. setup your environment at link:../README.adoc[prerequisites], ensures sources are compiled (`mvn install -DskipTests`)
 . go to the directory `$BYTEMAN_WORKSHOP/task4`: `cd "$BYTEMAN_WORKSHOP/task4"`
-. compile java sources: `mvn clean install`
 
 
 [[part1]]
