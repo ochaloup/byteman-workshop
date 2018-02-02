@@ -24,6 +24,7 @@
 
 == Fix things
 
-TODO in basics_task branch
-* task1: change text in script to 'I forgot what to say'
-* task2: zanest chybu :)
+TODO:
+* say how to inject into inner classes
+* say how to inject into static methods
+* say how to inject in catch 
