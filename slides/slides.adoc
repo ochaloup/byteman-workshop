@@ -340,13 +340,19 @@ FATAL ERROR in native method: processing of -javaagent failed
 
 == Few helpful points on DSL
 
-* *$CLASS* names the class into which the rule has been injected
+* *$CLASS* name of the class that owns the method into which the rule has been injected
+** difference of `$0.getClass().getName()` vs. `$CLASS`
+* *$METHOD* name of the trigger method
 * try and exception catch in the rule:
   https://github.com/ochaloup/byteman-workshop/tree/advanced_solution/tricky_examples/try-catch-check
 
 [NOTE.speaker]
 --
 * _$CLASS_: ttps://developer.jboss.org/message/980231?et=watches.email.thread#980231
+** $0.getClass().getName(): appends the same string in both super- and subclass
+** $CLASS refers to the name of the class that owns the method into which the rule has been injected
+** this condition will ensure that a rule injected using overriding only fires at the outermost injection point
+   `condition = "$0.getClass().getName() == $CLASS"`
 --
 
 == Verify rule syntax
