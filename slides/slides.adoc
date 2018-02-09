@@ -310,7 +310,6 @@ DO <actions>
 ENDRULE
 ----
 
-
 [NOTE.speaker]
 --
 * clinit: https://stackoverflow.com/questions/8517121/java-what-is-the-difference-between-init-and-clinit
@@ -337,6 +336,17 @@ previously defined in file ../simple.btm  line 14
   ... 11 more
 FATAL ERROR in native method: processing of -javaagent failed
 ```
+--
+
+== Few helpful points on DSL
+
+* *$CLASS* names the class into which the rule has been injected
+* try and exception catch in the rule:
+  https://github.com/ochaloup/byteman-workshop/tree/advanced_solution/tricky_examples/try-catch-check
+
+[NOTE.speaker]
+--
+* _$CLASS_: ttps://developer.jboss.org/message/980231?et=watches.email.thread#980231
 --
 
 == Verify rule syntax
@@ -566,6 +576,10 @@ image::byteman-icon.png[role="noborder", ,height="400"]
  * Arquillian Byteman extension: https://github.com/arquillian/arquillian-extension-byteman
 
 == References #3
+
+ * my troubles with abstract classes: https://developer.jboss.org/message/980231?et=watches.email.thread#980231
+
+== References #4
 
  * Collecting and Displaying Runtime Statistics With Byteman: http://bytemanblog.blogspot.cz/2010/10/collecting-and-displaying-runtime.html
  * Monitoring your JVM using Byteman: http://jbossts.blogspot.cz/2009/10/monitoring-your-jvm-using-byteman-111.html
