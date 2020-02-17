@@ -145,6 +145,13 @@ As WildFly uses jboss modules there is restrictive class path visibility. The us
 says that the Byteman classes are searched for in the system classloader.
 That's why they are visible to all deployments. When not specified the `ClassNotFoundException` could be shown.
 
+The byteman can make troubles if the jar is not loaded by the https://developer.jboss.org/thread/273237[boot class loader].
+The full `JAVA_OPTS` to consider, with showing all debug messages, is
+
+```
+JAVA_OPTS="$JAVA_OPTS -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task1/task1.btm,boot:$BYTEMAN_JAR -Djboss.modules.system.pkgs=org.jboss.byteman --Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug -Dorg.jboss.byteman.transform.all"
+```
+
 == Notes
 
 [NOTE]
