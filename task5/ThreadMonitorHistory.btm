@@ -64,6 +64,16 @@ IF TRUE
 DO traceCreate($0, 5)
 ENDRULE
 
+RULE ThreadMonitor trace create runnable
+INTERFACE INTERFACE ^java.lang.Runnable
+METHOD <init>
+HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
+AT EXIT
+IF TRUE
+DO traceCreate(Thread.currentThread(), 5)
+ENDRULE
+
+
 RULE ThreadMonitor trace create callable
 INTERFACE ^java.util.concurrent.Callable
 METHOD <init>
@@ -119,6 +129,15 @@ IF TRUE
 DO traceRun($0)
 ENDRULE
 
+RULE ThreadMonitor trace Callable run
+INTERFACE ^java.util.concurrent.Callable
+METHOD call()
+HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
+AT ENTRY
+IF TRUE
+DO traceRun($0)
+ENDRULE
+
 # A rule to trigger the registration of the ThreadHistoryMonitorHelper mbean.
 # This has to be done after the installation of the platform mbean to avoid
 # conflicts with installing the j.u.l.LogManager.
@@ -131,13 +150,71 @@ IF TRUE
 DO registerHelperMBean("org.jboss.byteman:helper=ThreadHistoryMonitorHelper")
 ENDRULE
 
-
-# A rule to trigger a flush of the events on System.exit
+# On testing method startup do the thread dump
 RULE write ThreadHistoryMonitorHelper data to file
 CLASS Task5Main
 METHOD main
 HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
 AT ENTRY
 IF TRUE
-do writeAllEventsToFile("thread-system-exit.txt")
+do writeAllEventsToFile("/tmp/thread-task5main.txt")
+ENDRULE
+
+
+
+###########################################################################
+###########################################################################
+### WildFly related stuff
+###########################################################################
+###########################################################################
+
+# A rule to trigger a flush of the events after the initial server bootstrap
+RULE write ThreadHistoryMonitorHelper boot events
+CLASS org.jboss.as.server.ApplicationServerService
+METHOD start
+HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
+AT EXIT
+IF TRUE
+do writeAllEventsToFile("/tmp/thread-boot.txt")
+ENDRULE
+
+# A rule to trigger a flush of the events after the server startup msg
+RULE write ThreadHistoryMonitorHelper to start msg events
+CLASS org.jboss.as.server.BootstrapListener
+METHOD finish
+HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
+AT EXIT
+IF TRUE
+do writeAllEventsToFile("/tmp/thread-events.txt")
+ENDRULE
+
+# A rule to trigger a flush of the events on System.exit
+RULE write ThreadHistoryMonitorHelper to a file on system.exit
+CLASS java.lang.System
+METHOD exit
+HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
+AT ENTRY
+IF TRUE
+do writeAllEventsToFile("/tmp/thread-system-exit.txt")
+ENDRULE
+
+# A rule to trigger a flush of the events on shutdown of processcontroller
+RULE write ThreadHistoryMonitorHelper to a file processcontroller end
+CLASS ProcessController
+METHOD shutdown
+HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
+AT ENTRY
+IF TRUE
+do writeAllEventsToFile("/tmp/thread-processcontroller-shutdown.txt")
+ENDRULE
+
+
+# A rule to trigger a flush of the events of calling server log to be stopped
+RULE write ThreadHistoryMonitorHelper to a file serverlog stop
+CLASS ServerLogger_$logger
+METHOD serverStopped
+HELPER org.jboss.byteman.sample.helper.ThreadHistoryMonitorHelper
+AT EXIT
+IF TRUE
+do writeAllEventsToFile("/tmp/thread-server-stopped-log.txt")
 ENDRULE

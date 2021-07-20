@@ -149,7 +149,7 @@ The byteman can make troubles if the jar is not loaded by the https://developer.
 The full `JAVA_OPTS` to consider, with showing all debug messages, is
 
 ```
-JAVA_OPTS="$JAVA_OPTS -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task1/task1.btm,boot:$BYTEMAN_JAR -Djboss.modules.system.pkgs=org.jboss.byteman --Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug -Dorg.jboss.byteman.transform.all"
+JAVA_OPTS="$JAVA_OPTS -javaagent:$BYTEMAN_JAR=script:$BYTEMAN_WORKSHOP/task1/task1.btm,boot:$BYTEMAN_JAR -Djboss.modules.system.pkgs=org.jboss.byteman -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.debug -Dorg.jboss.byteman.transform.all"
 ```
 
 == Notes
